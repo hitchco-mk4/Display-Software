@@ -1,4 +1,4 @@
-# HUD-pc
+# Display-Software
 
 The software driving the display on the hitcho-mk4.
 It is meant to be run on a [Raspberry Pi](https://www.raspberrypi.org/) embedded computer.
@@ -36,8 +36,8 @@ sudo apt-get install unclutter
 Download the package from git and then use NPM to install
 
 ```
-git clone https://github.com/hitchco-mk4/HUD-pc
-cd HUD-pc
+git clone https://github.com/hitchco-mk4/Display-Software
+cd Display-Software
 npm install
 ```
 
@@ -49,13 +49,13 @@ Install the custom splash screen:
 
 ```
 sudo mv /usr/share/plymouth/themes/pix/splash.png /usr/share/plymouth/themes/pix/splash.png.old
-sudo ln -s /home/pi/HUD-pc/media/splash-logo.png /usr/share/plymouth/themes/pix/splash.png
+sudo ln -s /home/pi/Display-Software/media/splash-logo.png /usr/share/plymouth/themes/pix/splash.png
 ```
 
 Install the custom wallpaper:
 
 ```
-pcmanfm --set-wallpaper /home/pi/HUD-pc/media/starting-electron-wallpaper.png
+pcmanfm --set-wallpaper /home/pi/Display-Software/media/starting-electron-wallpaper.png
 ```
 
 The LDXE config file located at `~/.config/lxsession/LXDE-pi/autostart` should match the following [file](./autostart.txt)):
@@ -68,7 +68,7 @@ The LDXE config file located at `~/.config/lxsession/LXDE-pi/autostart` should m
 
 
 # Run Electron At Boot
-@screen -d -m npm start --prefix /home/pi/HUD-pc
+@screen -d -m npm start --prefix /home/pi/Display-Software
 
 # Prevents Pi Display From Sleeping
 @xset s 0 0
@@ -85,13 +85,13 @@ The LDXE config file located at `~/.config/lxsession/LXDE-pi/autostart` should m
 
 ### Starting from SSH Session
 
-If you want to start HUD-pc from an SSH session on a remote machine, you must first run the following command:
+If you want to start Display-Software from an SSH session on a remote machine, you must first run the following command:
 
 ```
 export DISPLAY=:0
 ```
 
-Then when in the `/home/pi/HUD-pc` directory run:
+Then when in the `/home/pi/Display-Software` directory run:
 
 ```
 npm start
@@ -99,7 +99,7 @@ npm start
 
 ### Attaching to Running Session
 
-By default, HUD-pc runs on boot using an [autostart script](http://www.esologic.com/?p=2573) that runs `npm start` in a screen session. To get access to that screen session to stop it, or observe debug information, run the following commands:
+By default, Display-Software runs on boot using an [autostart script](http://www.esologic.com/?p=2573) that runs `npm start` in a screen session. To get access to that screen session to stop it, or observe debug information, run the following commands:
 
 ```
 screen -list
@@ -118,7 +118,7 @@ Example:
 
 ### Starting from Device
 
-If you want to start HUD-pc from the device (ie. keyboard attached to pi), in the `HUD-pc` directory run:
+If you want to start Display-Software from the device (ie. keyboard attached to pi), in the `Display-Software` directory run:
 ```
 npm start
 ```

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>car-HUD</title>
+	</head>
+	
+	<style>		
+	
+		body {
+			background-color: powderblue;
+		}
+	
+		.eqi-container {
+			display: flex;
+			justify-content: space-between;
+			text-align: center;
+			vertical-align: bottom;
+		}
+		
+		.bar_label {
+			padding-top: 2%;
+			size: 3;
+			transform: rotate(40deg);
+		}
+		
+		.big_bar_div {
+			width: 110px;
+		}
+		
+		.small_bar_div {
+			width: 96px;
+		}
+		
+		#notifications_panel {
+			text-align: left;
+			padding-left: 1%;
+			align-items: center; /* aligns the vertical centers of the divs */
+		}
+		
+		#top {
+			align-items: flex-end; /* aligns the vertical bottoms of the divs */
+			vertical-align: bottom;
+		}
+		
+		#bottom {
+			/* align-items: start; */ /* aligns the vertical tops of the divs */
+			height: 180px;
+			padding-top: 10px;
+			/* padding-right: 30%; */
+		}
+		
+		#mph_doughnut {
+			width: 350px;
+		}
+		
+		#rpm_doughnut {
+			width: 300px;
+		}
+		
+		#top-left-triangle {
+			position: absolute;
+			top:0;
+			left:0;
+			z-index: 1;
+			border-style: solid;
+			border-width: 100px 100px 0 0;
+			border-color: #007bff transparent transparent transparent;
+		}
+	
+		#top-right-triangle {
+			position: absolute;
+			top:0;
+			right:0;
+			z-index: 1;
+			border-style: solid;
+			border-width: 0 100px 100px 0;
+			border-color: transparent #007bff transparent transparent;
+		}
+
+	</style>
+	
+	<body>
+		
+		<div id="top-left-triangle"></div>
+		<div id="top-right-triangle"></div>
+		
+		<div class="eqi-container" id="top">
+		
+			<div>
+				<canvas id="mph_doughnut"></canvas>
+				<p>MPH</p>
+			</div>
+			
+			<div>
+				<canvas id="rpm_doughnut"></canvas>
+				<p>RPM</p>
+			</div>
+			
+			<div id="notifications_panel">
+				<div id = "npanel_reverse"></div>
+				<div id = "npanel_ebreak"></div>
+				<div id = "npanel_serror"></div>
+				<div id = "npanel_state"></div>
+				<div id = "npanel_odo"></div>
+			</div>
+		
+		</div>
+		
+		<div class="eqi-container" id="bottom">
+						
+			<div class="big_bar_div">
+				<canvas id="fuel_bar" class="bar_chart"></canvas>
+				<div class="bar_label">Fuel</div>
+			</div>
+				
+			<div class="small_bar_div">
+				<canvas id="vbat_bar" class="bar_chart"></canvas>
+				<div class="bar_label">Voltage</div>
+			</div>
+			
+			<div class="small_bar_div">
+				<canvas id="batc_bar" class="bar_chart"></canvas>
+				<div class="bar_label">Current</div>
+			</div>
+			
+			<div class="small_bar_div">
+				<canvas id="ect_bar" class="bar_chart"></canvas>
+				<div class="bar_label">Engine Temp</div>
+			</div>
+			
+			<div class="small_bar_div">
+				<canvas id="act_bar" class="bar_chart"></canvas>
+				<div class="bar_label">Air Temp</div>
+			</div>
+			
+			<div class="small_bar_div">
+				<canvas id="oilp_bar" class="bar_chart"></canvas>
+				<div class="bar_label">Oil Pressure</div>
+			</div>
+			
+			<div class="small_bar_div">
+				<canvas id="egol_bar" class="bar_chart"></canvas>
+				<div class="bar_label">EGOL</div>
+			</div>
+			
+			<div class="small_bar_div">
+				<canvas id="egor_bar" class="bar_chart"></canvas>
+				<div class="bar_label">EGOR</div>
+			</div>
+			
+		</div>
+		
+	</body>
+	
+	<script>
+		require('./renderer.js')
+	</script>
+</html>

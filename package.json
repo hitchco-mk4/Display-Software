@@ -1,0 +1,31 @@
+{
+  "name": "hitchco-mk4-HUD-pc",
+  "version": "0.0.0",
+  "description": "The software driving the display for the hitchco mk4",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "install": "electron-rebuild"
+  },
+  "repository": "https://github.com/hitchco-mk4/HUD-pc/",
+  "keywords": [
+    "Electron",
+    "Raspberry Pi",
+    "Arduino",
+    "Automotive Car"
+  ],
+  "author": "Devon Bray - dev@esologic.com",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "~1.6.2",
+    "electron-rebuild": "^1.5.11"
+  },
+  "dependencies": {
+	"electron": "~1.6.2",
+    "chart.js": "^2.5.4",
+    "serialport": "^4.0.7",
+    "chartsjs-plugin-data-labels": "^0.1.5",
+    "winston": "^2.4.0", 
+	"power-off": "^1.1.2"
+  }
+}

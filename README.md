@@ -8,10 +8,25 @@ It is meant to be run on a [Raspberry Pi](https://www.raspberrypi.org/) embedded
 
 ## One line installation and configuration:
 Paste the following line into a terminal on the pi and everything should be installed and configured. If it doesn't work, follow the steps below. It makes backups of each file modified (`.bak`) so the original configuration can be restored using these files. 
+```
+sudo apt-get install git curl unclutter screen -y && curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - && sudo apt-get install nodejs build-essential -y && git clone https://github.com/hitchco-mk4/Display-Software && cd Display-Software && npm install && sudo mv /boot/config.txt /boot/config.txt.old && sudo mv config.txt /boot/config.txt && sudo python3 edit_cmdline.py && sudo mv /home/pi/.config/lxsession/LXDE-pi/autostart /home/pi/.config/lxsession/LXDE-pi/autostart.old && sudo mv autostart /home/pi/.config/lxsession/LXDE-pi/autostart && sudo mv /home/pi/.config/lxpanel/LXDE-pi/panels/panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel.old && sudo mv panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel && touch /home/pi/Desktop/test.desktop && rm /home/pi/Desktop/*.desktop && sudo mv /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf.old && sudo mv desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf && echo "pi:raspberry1" | sudo chpasswd && sudo mv /etc/hosts /etc/hosts.old && sudo mv hosts /etc/hosts && sudo mv /etc/hostname /etc/hostname.old && sudo mv hostname /etc/hostname &&  sudo reboot
+```
 
-```
-sudo apt-get install git curl unclutter -y && curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - && sudo apt-get install nodejs build-essential -y && git clone https://github.com/hitchco-mk4/Display-Software && cd Display-Software && npm install && sudo mv /boot/config.txt /boot/config.txt.old && sudo mv config.txt /boot/config.txt && sudo python3 edit_cmdline.py && sudo mv /home/pi/.config/lxsession/LXDE-pi/autostart /home/pi/.config/lxsession/LXDE-pi/autostart.old && sudo mv autostart /home/pi/.config/lxsession/LXDE-pi/autostart && sudo mv /home/pi/.config/lxpanel/LXDE-pi/panels/panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel.old && sudo mv panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel && touch /home/pi/Desktop/test.desktop && rm /home/pi/Desktop/*.desktop && sudo mv /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf.old && sudo mv desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf && echo "pi:raspberry1" | sudo chpasswd && sudo mv /etc/hosts /etc/hosts.old && sudo mv hosts /etc/hosts && sudo mv /etc/hostname /etc/hostname.old && sudo mv hostname /etc/hostname &&  sudo reboot
-```
+This does the following:
+1. Install apt packages `git`, `curl`, `unclutter` and `screen`
+2. Install `node.js` version 6
+3. Clone the [github repo](https://github.com/hitchco-mk4/Display-Software) and install
+4. Install the correct `/boot/config.txt`
+5. Install the correct `/boot/cmdline.txt`
+6. Install the LXDE `autostart` script
+7. Install the LXDE `panel` script
+8. Remove desktop icons
+9. Hide the trashcan and install the custom wallpaper
+10. Set the password for the `pi` user to `raspberry1`
+11. Change the hostname from `raspberrypi` to `MK4`
+12. Reboot
+
+
 
 ## Prerequisites:
 

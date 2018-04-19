@@ -201,7 +201,7 @@ The file `/home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf` on the Raspberr
 [*]
 wallpaper_mode=crop
 wallpaper_common=1
-wallpaper=/home/pi/Display-Software/media/wallpaper.png
+wallpaper=/home/pi/Display-Software/wallpaper.png
 desktop_bg=#d6d6d3d3dede
 desktop_fg=#e8e8e8e8e8e8
 desktop_shadow=#d6d6d3d3dede

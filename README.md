@@ -145,7 +145,7 @@ The file `/boot/cmdline.txt` on the Raspberry Pi should match the following:
 ```
 dwc_otg.lpm_enable=0 console=tty3 root=PARTUUID=8f87bb40-02 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet splash loglevel=0 logo.nologo vt.global_cursor_default=0
 ```
-Note that the line `root=PARTUUID=8f87bb40-02` should match entry in the original `/boot/cmdline.txt`.
+Note that the line `root=PARTUUID=8f87bb40-02` should match entry in the original `/boot/cmdline.txt`. I've written a [python script](./edit_cmdline.py) to make these changes while maintaining this entry. Either run that or make the changes manually.
 
 
 The file `/home/pi/.config/lxsession/LXDE-pi/autostart` on the Raspberry Pi should match the [following](./autostart):

@@ -38,7 +38,7 @@ if __name__ == "__main__":
 				
 	print("Existing Root Entry [" + str(root_entry) + "]")
 	
-	backup_path = path + ".old"
+	backup_path = path + ".bak"
 	
 	shutil.copyfile(path, backup_path)
 	

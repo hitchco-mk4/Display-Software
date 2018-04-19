@@ -150,7 +150,7 @@ Note that the line `root=PARTUUID=8f87bb40-02` should match entry in the origina
 
 The file `/home/pi/.config/lxsession/LXDE-pi/autostart` on the Raspberry Pi should match the [following](./autostart):
 ```
-@lxpanel --profile LXDE-pi
+# @lxpanel --profile LXDE-pi
 @pcmanfm --desktop --profile LXDE-pi
 @xscreensaver -no-splash
 @point-rpi

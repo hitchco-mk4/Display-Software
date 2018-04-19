@@ -3,9 +3,8 @@
 @xscreensaver -no-splash
 @point-rpi
 
-
 # Run Electron At Boot
-@screen -d -m npm start --prefix /home/pi/HUD-pc
+@screen -d -m npm start --prefix /home/pi/Display-Software
 
 # Prevents Pi Display From Sleeping
 @xset s 0 0
@@ -13,4 +12,5 @@
 @xset s noexpose
 @xset dpms 0 0 0
 
+# Hide the mouse
 @unclutter -idle 0

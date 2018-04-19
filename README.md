@@ -7,23 +7,23 @@ It is meant to be run on a [Raspberry Pi](https://www.raspberrypi.org/) embedded
 
 
 ## One line installation and configuration:
-Paste the following line into a terminal on the pi and everything should be installed and configured. If it doesn't work, follow the steps below.
+Paste the following line into a terminal on the pi and everything should be installed and configured. If it doesn't work, follow the steps below. It makes backups of each file modified (`.bak`) so the original configuration can be restored using these files. 
 
 ```
-sudo apt-get install git curl unclutter -y && curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - && sudo apt-get install nodejs build-essential -y && git clone https://github.com/hitchco-mk4/Display-Software && cd Display-Software && npm install && sudo mv /boot/config.txt /boot/config.txt.old && sudo mv config.txt /boot/config.txt && sudo python3 edit_cmdline.py && sudo mv /home/pi/.config/lxsession/LXDE-pi/autostart /home/pi/.config/lxsession/LXDE-pi/autostart.old && sudo mv autostart /home/pi/.config/lxsession/LXDE-pi/autostart && sudo mv /home/pi/.config/lxpanel/LXDE-pi/panels/panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel.old && sudo mv panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel && rm /home/pi/Desktop/*.desktop && sudo mv /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf.old && sudo mv desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf && echo "pi:raspberry1" | sudo chpasswd && sudo mv /etc/hosts /etc/hosts.old && sudo mv hosts /etc/hosts && sudo mv /etc/hostname /etc//etc/hostname.old && sudo mv hostname /etc/hostname &&  sudo reboot
+sudo apt-get install git curl unclutter -y && curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - && sudo apt-get install nodejs build-essential -y && git clone https://github.com/hitchco-mk4/Display-Software && cd Display-Software && npm install && sudo mv /boot/config.txt /boot/config.txt.old && sudo mv config.txt /boot/config.txt && sudo python3 edit_cmdline.py && sudo mv /home/pi/.config/lxsession/LXDE-pi/autostart /home/pi/.config/lxsession/LXDE-pi/autostart.old && sudo mv autostart /home/pi/.config/lxsession/LXDE-pi/autostart && sudo mv /home/pi/.config/lxpanel/LXDE-pi/panels/panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel.old && sudo mv panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel && touch /home/pi/Desktop/test.desktop && rm /home/pi/Desktop/*.desktop && sudo mv /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf.old && sudo mv desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf && echo "pi:raspberry1" | sudo chpasswd && sudo mv /etc/hosts /etc/hosts.old && sudo mv hosts /etc/hosts && sudo mv /etc/hostname /etc/hostname.old && sudo mv hostname /etc/hostname &&  sudo reboot
 ```
 
 ## Prerequisites:
 
 This software has only been verified to work on the [September 2017 version of Raspian Stretch With Desktop](https://downloads.raspberrypi.org/raspbian_latest)
 
-Installation is based on git, install git with:
+Installation is based on `git`, install `git` with:
 
 ```
 sudo apt-get install git
 ```
 
-You also need Node (and npm) for installation:
+You also need `node.js` (and `npm`) for installation:
 
 ```
 sudo apt-get install curl
@@ -32,15 +32,21 @@ sudo apt-get install -y nodejs
 sudo apt-get install -y build-essential
 ```
 
-The Unclutter package is used to hide UI elements from the os. Install with:
+The `unclutter` package is used to hide UI elements in the OS. Install with:
 
 ```
 sudo apt-get install unclutter
 ```
 
+`screen` is used to run the software at boot. Install it with:
+
+```
+sudo apt-get install screen
+```
+
 ## Installing
 
-Download the package from git and then use NPM to install
+Download the package from `git` and then use `npm` to install:
 
 ```
 git clone https://github.com/hitchco-mk4/Display-Software
@@ -48,7 +54,7 @@ cd Display-Software
 npm install
 ```
 
-Electron needs to build serialport against the version of Node it ships with, but this should happen automatically.
+`electron` needs to build `serialport` against the version of `node.js` that it (electron) ships with, but this should happen automatically.
 
 ## Configuring
 
@@ -207,7 +213,7 @@ show_trash=0
 show_mounts=0
 prefs_app=SUDO_ASKPASS=/usr/bin/pwdpip.sh pipanel
 ```
-This hides the trashcan, and installs the custom wallpaper.
+This hides the trashcan and sets the wallpaper.
 
 The password should be changed to `raspberry1` to avoid the warning message on the desktop. Run the following command:
 ```

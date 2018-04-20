@@ -8,7 +8,7 @@ It is meant to be run on a [Raspberry Pi](https://www.raspberrypi.org/) embedded
 ## Installing
 
 ### Pre-Configured Image File:
-For your convenience, there is a pre-configured image file in this repo here. If you take this route, you can ignore everything else in the 
+For your convenience, there is a pre-configured image file in this repo [here](./mk4.img). If you take this route, you can ignore everything else in the 
 
 ### One line installation and configuration:
 Paste the following line into a terminal on the pi and everything should be installed and configured. If it doesn't work, follow the steps below. It makes backups of each file modified (`.bak`) so the original configuration can be restored using these files. 
@@ -232,7 +232,7 @@ prefs_app=SUDO_ASKPASS=/usr/bin/pwdpip.sh pipanel
 ```
 This hides the trashcan and sets the wallpaper.
 
-The password should be changed to `raspberry1` to avoid the warning message on the desktop. Run the following command:
+The password for the `pi` user should be changed to `raspberry1` to avoid the warning message on the desktop. Run the following command:
 ```
 echo "pi:raspberry1" | sudo chpasswd
 ```

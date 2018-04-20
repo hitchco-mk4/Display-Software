@@ -5,8 +5,12 @@ It is meant to be run on a [Raspberry Pi](https://www.raspberrypi.org/) embedded
 
 ## Software Organization:
 
+## Installing
 
-## One line installation and configuration:
+### Pre-Configured Image File:
+For your convenience, there is a pre-configured image file in this repo here. If you take this route, you can ignore everything else in the 
+
+### One line installation and configuration:
 Paste the following line into a terminal on the pi and everything should be installed and configured. If it doesn't work, follow the steps below. It makes backups of each file modified (`.bak`) so the original configuration can be restored using these files. 
 ```
 sudo apt-get install git curl unclutter screen -y && curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - && sudo apt-get install nodejs build-essential -y && git clone https://github.com/hitchco-mk4/Display-Software && cd Display-Software && npm install && sudo mv /boot/config.txt /boot/config.txt.bak && sudo mv config.txt /boot/config.txt && sudo python3 edit_cmdline.py && sudo mv /home/pi/.config/lxsession/LXDE-pi/autostart /home/pi/.config/lxsession/LXDE-pi/autostart.bak && sudo mv autostart /home/pi/.config/lxsession/LXDE-pi/autostart && sudo mv /home/pi/.config/lxpanel/LXDE-pi/panels/panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel.bak && sudo mv panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel && touch /home/pi/Desktop/test.desktop && rm /home/pi/Desktop/*.desktop && sudo mv /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf.bak && sudo mv desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf && echo "pi:raspberry1" | sudo chpasswd && sudo mv /etc/hosts /etc/hosts.bak && sudo mv hosts /etc/hosts && sudo mv /etc/hostname /etc/hostname.bak && sudo mv hostname /etc/hostname &&  sudo reboot
@@ -26,9 +30,7 @@ This does the following:
 11. Change the hostname from `raspberrypi` to `MK4`
 12. Reboot
 
-
-
-## Prerequisites:
+### Prerequisites:
 
 This software has only been verified to work on the [September 2017 version of Raspian Stretch With Desktop](https://downloads.raspberrypi.org/raspbian_latest)
 
@@ -59,7 +61,7 @@ sudo apt-get install unclutter
 sudo apt-get install screen
 ```
 
-## Installing
+### Manual Installation 
 
 Download the package from `git` and then use `npm` to install:
 
@@ -71,7 +73,7 @@ npm install
 
 `electron` needs to build `serialport` against the version of `node.js` that it (electron) ships with, but this should happen automatically.
 
-## Configuring
+### Manual Configuration
 
 The file `/boot/config.txt` on the Raspberry Pi should match the [following](./config.txt):
 ```
@@ -88,44 +90,44 @@ The file `/boot/config.txt` on the Raspberry Pi should match the [following](./c
 
 # uncomment the following to adjust overscan. Use positive numbers if console
 # goes off screen, and negative if there is too much border
-#overscan_left=16
-#overscan_right=16
-#overscan_top=16
-#overscan_bottom=16
+# overscan_left=16
+# overscan_right=16
+# overscan_top=16
+# overscan_bottom=16
 
 # uncomment to force a console size. By default it will be display's size minus
 # overscan.
-#framebuffer_width=1280
-#framebuffer_height=720
+# framebuffer_width=1280
+# framebuffer_height=720
 
 # uncomment if hdmi display is not detected and composite is being output
-#hdmi_force_hotplug=1
+# hdmi_force_hotplug=1
 
 # uncomment to force a specific HDMI mode (this will force VGA)
-#hdmi_group=1
-#hdmi_mode=1
+# hdmi_group=1
+# hdmi_mode=1
 
 # uncomment to force a HDMI mode rather than DVI. This can make audio work in
 # DMT (computer monitor) modes
-#hdmi_drive=2
+# hdmi_drive=2
 
 # uncomment to increase signal to HDMI, if you have interference, blanking, or
 # no display
-#config_hdmi_boost=4
+# config_hdmi_boost=4
 
 # uncomment for composite PAL
-#sdtv_mode=2
+# sdtv_mode=2
 
-#uncomment to overclock the arm. 700 MHz is the default.
-#arm_freq=800
+# uncomment to overclock the arm. 700 MHz is the default.
+# arm_freq=800
 
 # Uncomment some or all of these to enable the optional hardware interfaces
-#dtparam=i2c_arm=on
-#dtparam=i2s=on
-#dtparam=spi=on
+# dtparam=i2c_arm=on
+# dtparam=i2s=on
+# dtparam=spi=on
 
 # Uncomment this to enable the lirc-rpi module
-#dtoverlay=lirc-rpi
+# dtoverlay=lirc-rpi
 
 # Additional overlays and parameters are documented /boot/overlays/README
 

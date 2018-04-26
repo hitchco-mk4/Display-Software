@@ -1,5 +1,6 @@
 const electron = require('electron');
 const fork = require('child_process').fork;
+const spawn = require('child_process').spawn;
 var powerOff = require('power-off');
 const path = require('path');
 const url = require('url');
@@ -11,11 +12,11 @@ var initial_odometer_count;
 var last_left_blink_state = 0;
 var last_right_blink_state = 0;
 var previous_miles_this_trip = 0;
+var arduino_thread_ready = true;
+var backup_cam_on = false;
 
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow;
-
-var arduino_thread_ready = true;
 
 
 function log_function (message) {
@@ -206,6 +207,21 @@ hardware_process.on('message', (m) => {
 		});
 		
 		log_function("Pi didn't shut off! ");
+	}
+	
+	if (rvrs) {
+		if (backup_cam_on == false) {
+			log_function("Starting Backup Camera Process");
+			var proc = spawn('mplayer -vf scale -zoom -xy 400 -input file=mplayer.settings  tv://device=/dev/video0');
+			backup_cam_on = true;
+		}
+	}
+	else {
+		if (backup_cam_on == true) {
+			log_function("Killing Backup Camera Process");
+			proc.kill('SIGINT');
+			backup_cam_on = false;
+		}
 	}
 	
 	log_function("Sending JSON to renderer: ");

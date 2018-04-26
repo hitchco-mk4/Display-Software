@@ -27,7 +27,7 @@ if __name__ == "__main__":
 	root_entry = False
 	
 	for entry in entries:
-		if entry.startswith("root="):
+		if entry.startswith("root"):
 			root_entry = entry
 			entries.remove(entry)
 			break
@@ -38,7 +38,7 @@ if __name__ == "__main__":
 				
 	print("Existing Root Entry [" + str(root_entry) + "]")
 	
-	backup_path = path + ".bak"
+	backup_path = path + ".old"
 	
 	shutil.copyfile(path, backup_path)
 	

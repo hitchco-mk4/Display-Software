@@ -9,7 +9,7 @@ var arduino_ready = false;
 var serial_error_count = 0;
 
 function log_function (message) {
-	console.log("arduino.js - " + String(message));
+	// console.log("arduino.js - " + String(message));
 }
 
 function calc_crc(preCRC) {

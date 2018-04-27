@@ -58,6 +58,10 @@ function createWindow () {
 		mainWindow = null
 	})
 	
+	log_function("Starting Backup Camera Process");
+	proc = exec('mplayer -vf scale -zoom -xy 400 -input file=/home/pi/Display-Software/mplayer.settings  tv://device=/dev/video0');
+	
+	
 }
 
 function startWorker() {
@@ -128,7 +132,7 @@ hardware_process.on('message', (m) => {
 	log_function("Got JSON from arduino_reader: ");
 	log_function(JSON.stringify(report_json));
 	
-	log_function("Re-mapping arduino JSON for renderer");
+	//log_function("Re-mapping arduino JSON for renderer");
 	
 	var miles_this_trip = report_json.f7;
 	
@@ -213,8 +217,7 @@ hardware_process.on('message', (m) => {
 	
 	if (rvrs) {
 		if (backup_cam_on == false) {
-			log_function("Starting Backup Camera Process");
-			proc = exec('mplayer -vf scale -zoom -xy 400 -input file=/home/pi/Display-Software/mplayer.settings  tv://device=/dev/video0');
+			
 			backup_cam_on = true;
 		}
 	}
@@ -226,8 +229,8 @@ hardware_process.on('message', (m) => {
 		}
 	}
 	
-	log_function("Sending JSON to renderer: ");
-	log_function(JSON.stringify(displayJSON));
+	//log_function("Sending JSON to renderer: ");
+	//log_function(JSON.stringify(displayJSON));
 	
 	arduino_thread_ready = true;
 });

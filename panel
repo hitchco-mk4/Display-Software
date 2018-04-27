@@ -20,7 +20,7 @@ Global {
   fontcolor=#ffffff
   usefontsize=0
   background=0
-  backgroundfile=/usr/share/lxpanel/images/background.png
+  backgroundfile=/home/pi/Display-Software/media/wallpaper.png
   iconsize=36
 }
 Plugin {

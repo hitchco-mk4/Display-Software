@@ -10,7 +10,7 @@ It is meant to be run on a [Raspberry Pi](https://www.raspberrypi.org/) embedded
 Paste the following line into a terminal on the pi and everything should be installed and configured. If it doesn't work, follow the steps below.
 
 ```
-sudo apt-get install git curl unclutter mplayer -y && curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - && sudo apt-get install nodejs build-essential -y && git clone https://github.com/hitchco-mk4/Display-Software && cd Display-Software && npm install && sudo mv /boot/config.txt /boot/config.txt.old && sudo mv config.txt /boot/config.txt && sudo python3 edit_cmdline.py && sudo mv /home/pi/.config/lxsession/LXDE-pi/autostart /home/pi/.config/lxsession/LXDE-pi/autostart.old && sudo mv autostart /home/pi/.config/lxsession/LXDE-pi/autostart && sudo mv /home/pi/.config/lxpanel/LXDE-pi/panels/panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel.old && sudo mv panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel && rm /home/pi/Desktop/*.desktop && sudo mv /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf.old && sudo mv desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf && echo "pi:raspberry1" | sudo chpasswd && sudo mv /etc/hosts /etc/hosts.old && sudo mv hosts /etc/hosts && sudo mv /etc/hostname /etc//etc/hostname.old && sudo mv hostname /etc/hostname && sudo mv /home/pi/.config/openbox/lxde-pi-rc.xml /home/pi/.config/openbox/lxde-pi-rc.xml.old && sudo mv lxde-pi-rc.xml /home/pi/.config/openbox/lxde-pi-rc.xml && sudo reboot
+sudo apt-get update && sudo apt-get install git curl unclutter mplayer screen -y && curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - && sudo apt-get install nodejs build-essential -y && git clone https://github.com/hitchco-mk4/Display-Software && cd Display-Software && npm install && sudo mv /boot/config.txt /boot/config.txt.old && sudo cp config.txt /boot/config.txt && sudo python3 edit_cmdline.py && sudo mv /home/pi/.config/lxsession/LXDE-pi/autostart /home/pi/.config/lxsession/LXDE-pi/autostart.old && sudo cp autostart /home/pi/.config/lxsession/LXDE-pi/autostart && sudo mv /home/pi/.config/lxpanel/LXDE-pi/panels/panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel.old && sudo cp panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel && touch /home/pi/Desktop/test.desktop && rm /home/pi/Desktop/*.desktop && sudo mv /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf.old && sudo cp desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf && echo "pi:raspberry1" | sudo chpasswd && sudo mv /etc/hosts /etc/hosts.old && sudo cp hosts /etc/hosts && sudo mv /etc/hostname /etc/hostname.old && sudo cp hostname /etc/hostname && sudo mv /home/pi/.config/openbox/lxde-pi-rc.xml /home/pi/.config/openbox/lxde-pi-rc.xml.old && sudo cp lxde-pi-rc.xml /home/pi/.config/openbox/lxde-pi-rc.xml && sudo reboot
 ```
 
 This does the following:
@@ -150,7 +150,7 @@ Note that the line `root=PARTUUID=8f87bb40-02` should match entry in the origina
 
 The file `/home/pi/.config/lxsession/LXDE-pi/autostart` on the Raspberry Pi should match the [following](./autostart):
 ```
-@lxpanel --profile LXDE-pi
+# @lxpanel --profile LXDE-pi
 @pcmanfm --desktop --profile LXDE-pi
 @xscreensaver -no-splash
 @point-rpi

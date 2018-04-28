@@ -10,7 +10,7 @@ It is meant to be run on a [Raspberry Pi](https://www.raspberrypi.org/) embedded
 Paste the following line into a terminal on the pi and everything should be installed and configured. If it doesn't work, follow the steps below.
 
 ```
-sudo apt-get update && sudo apt-get install git curl unclutter mplayer screen -y && curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - && sudo apt-get install nodejs build-essential -y && git clone https://github.com/hitchco-mk4/Display-Software && cd Display-Software && npm install && sudo mv /boot/config.txt /boot/config.txt.old && sudo cp config.txt /boot/config.txt && sudo python3 edit_cmdline.py && sudo mv /home/pi/.config/lxsession/LXDE-pi/autostart /home/pi/.config/lxsession/LXDE-pi/autostart.old && sudo cp autostart /home/pi/.config/lxsession/LXDE-pi/autostart && sudo mv /home/pi/.config/lxpanel/LXDE-pi/panels/panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel.old && sudo cp panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel && touch /home/pi/Desktop/test.desktop && rm /home/pi/Desktop/*.desktop && sudo mv /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf.old && sudo cp desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf && echo "pi:raspberry1" | sudo chpasswd && sudo mv /etc/hosts /etc/hosts.old && sudo cp hosts /etc/hosts && sudo mv /etc/hostname /etc/hostname.old && sudo cp hostname /etc/hostname && sudo mv /home/pi/.config/openbox/lxde-pi-rc.xml /home/pi/.config/openbox/lxde-pi-rc.xml.old && sudo cp lxde-pi-rc.xml /home/pi/.config/openbox/lxde-pi-rc.xml && pcmanfm --set-wallpaper /home/pi/Display-Software/wallpaper.png && sudo reboot
+sudo apt-get update && sudo apt-get install git curl unclutter mplayer screen -y && curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - && sudo apt-get install nodejs build-essential -y && git clone https://github.com/hitchco-mk4/Display-Software && cd Display-Software && npm install && sudo mv /boot/config.txt /boot/config.txt.old && sudo cp config.txt /boot/config.txt && sudo python3 edit_cmdline.py && sudo mv /home/pi/.config/lxsession/LXDE-pi/autostart /home/pi/.config/lxsession/LXDE-pi/autostart.old && sudo cp autostart /home/pi/.config/lxsession/LXDE-pi/autostart && sudo mv /home/pi/.config/lxpanel/LXDE-pi/panels/panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel.old && sudo cp panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel && sudo touch /home/pi/Desktop/test.desktop && sudo rm /home/pi/Desktop/*.desktop && sudo mv /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf.old && sudo cp desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf && sudo mv /home/pi/.config/openbox/lxde-pi-rc.xml /home/pi/.config/openbox/lxde-pi-rc.xml.old && sudo cp lxde-pi-rc.xml /home/pi/.config/openbox/lxde-pi-rc.xml && pcmanfm --set-wallpaper /home/pi/Display-Software/wallpaper.png && echo "pi:raspberry1" | sudo chpasswd && sudo reboot
 ```
 
 This does the following:
@@ -24,9 +24,8 @@ This does the following:
 8. Remove desktop icons
 9. Hide the trashcan
 10. Set the password for the `pi` user to `raspberry1`
-11. Change the hostname from `raspberrypi` to `MK4`
-12. Install the correct `lxde-pi-rc.xml`
-13. Set the custom wallpaper
+11. Install the correct `lxde-pi-rc.xml`
+12. Set the custom wallpaper
 13. Reboot
 
 ## Prerequisites:
@@ -167,7 +166,7 @@ The file `/home/pi/.config/lxsession/LXDE-pi/autostart` on the Raspberry Pi shou
 @xset dpms 0 0 0
 
 # Auto-hide the mouse
-@unclutter -idle 0.1 -root
+@unclutter -idle 0.1
 ```
 
 The file `/home/pi/.config/lxpanel/LXDE-pi/panels/panel` on the Raspberry Pi should match the [following](./panel):
@@ -234,21 +233,6 @@ This hides the trashcan, and installs the custom wallpaper.
 The password should be changed to `raspberry1` to avoid the warning message on the desktop. Run the following command:
 ```
 echo "pi:raspberry1" | sudo chpasswd
-```
-
-The file `/etc/hosts` on the Raspberry Pi should match the [following](./hosts):
-```
-127.0.0.1	localhost
-::1		localhost ip6-localhost ip6-loopback
-ff02::1		ip6-allnodes
-ff02::2		ip6-allrouters
-
-127.0.1.1	MK4
-```
-
-The file `/etc/hostname` on the Raspberry Pi should match the [following](./hostname):
-```
-MK4
 ```
 
 The file [`mplayer.settings`](./mplayer.settings) is automatically included in installation. It is used to set the `v4l2-ctl` driver for the webcam. It should match the following (**YOU DON'T HAVE TO EDIT THIS**):

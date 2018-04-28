@@ -13,4 +13,4 @@
 @xset dpms 0 0 0
 
 # Hide the mouse
-@unclutter -idle 0.1 -root
+@unclutter -idle 0.1

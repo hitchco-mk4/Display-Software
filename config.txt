@@ -59,6 +59,4 @@ dtparam=audio=on
 #CUSTOM FIELDS
 lcd_rotate=2
 enable_uart=1
-
-
 disable_splash=1

@@ -27,7 +27,7 @@ if __name__ == "__main__":
 	root_entry = False
 	
 	for entry in entries:
-		if entry.startswith("root"):
+		if entry.startswith("root="):
 			root_entry = entry
 			entries.remove(entry)
 			break

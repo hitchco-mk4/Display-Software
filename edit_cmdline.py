@@ -21,11 +21,11 @@ import sys
 import os
 import shutil
 
-remove_entries = ["plymouth.ignore-serial-consoles"]  # if these entries are found, they will be removed
-remove_startswith = ["console=", "console=serial0"]  # if an entry starts with this pattern, it will be removed
-add_entries = ["loglevel=0", "logo.nologo", "console=tty3", "vt.global_cursor_default=0", "vt.cur_default=1", "splash"]  # these entries will be added
-
 if __name__ == "__main__":
+
+	remove_entries = ["plymouth.ignore-serial-consoles"]  # if these entries are found, they will be removed
+	remove_startswith = ["console=tty", "console=serial0"]  # if an entry starts with this pattern, it will be removed
+	add_entries = ["loglevel=0", "logo.nologo", "console=tty3", "vt.global_cursor_default=0", "vt.cur_default=1", "splash"]  # these entries will be added
 
 	try:
 		path = sys.argv[1]
@@ -46,9 +46,11 @@ if __name__ == "__main__":
 	
 	original_entries = line.rstrip().split(" ")
 	
-	print("Original Entries")
+	to_be_removed = []
 	
 	for original_entry in original_entries:
+		
+		original_entry = str(original_entry)
 	
 		remove_entry = False
 	
@@ -56,12 +58,15 @@ if __name__ == "__main__":
 			remove_entry = True
 		
 		for start in remove_startswith:
-			if start in original_entry:
+			if original_entry.startswith(start):
 				remove_entry = True
 		
 		if remove_entry:
-			print("Removing [" + str(original_entry) + "]")
-			original_entries.remove(original_entry)
+			to_be_removed.append(original_entry)
+	
+	for remove_entry in to_be_removed:
+		print("Removing [" + str(remove_entry) + "]")
+		original_entries.remove(remove_entry)
 	
 	for add_entry in add_entries:
 		if add_entry not in original_entries:
@@ -69,8 +74,10 @@ if __name__ == "__main__":
 			print("Adding [" + str(add_entry) + "]")
 	
 	new_line = ""	
+	
 	for entry in original_entries:
 		new_line += entry + " "
+	
 	new_line = new_line[:-1] # remove the trailing space
 	new_line += os.linesep # add the newline at the end
 	

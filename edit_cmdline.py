@@ -56,7 +56,7 @@ if __name__ == "__main__":
 			remove_entry = True
 		
 		for start in remove_startswith:
-			if original_entry.startswith(start):
+			if start in original_entry:
 				remove_entry = True
 		
 		if remove_entry:

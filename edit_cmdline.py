@@ -61,6 +61,7 @@ if __name__ == "__main__":
 		
 		if remove_entry:
 			print("Removing [" + str(original_entry) + "]")
+			original_entries.remove(original_entry)
 	
 	for add_entry in add_entries:
 		if add_entry not in original_entries:

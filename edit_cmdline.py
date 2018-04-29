@@ -21,6 +21,10 @@ import sys
 import os
 import shutil
 
+remove_entries = ["plymouth.ignore-serial-consoles"]  # if these entries are found, they will be removed
+remove_startswith = ["console=", "console=serial0"]  # if an entry starts with this pattern, it will be removed
+add_entries = ["loglevel=0", "logo.nologo", "console=tty3", "vt.global_cursor_default=0", "vt.cur_default=1", "splash"]  # these entries will be added
+
 if __name__ == "__main__":
 
 	try:
@@ -42,27 +46,30 @@ if __name__ == "__main__":
 	
 	original_entries = line.rstrip().split(" ")
 	
-	remove_entries = ["console=serial0,115200", "plymouth.ignore-serial-consoles", "console=tty1", "console=ttyl", "console=tty1"]
-	
 	print("Original Entries")
 	
 	for original_entry in original_entries:
+	
+		remove_entry = False
+	
 		if original_entry in remove_entries:
-			original_entries.remove(original_entry)
+			remove_entry = True
+		
+		for start in remove_startswith:
+			if original_entry.startswith(start):
+				remove_entry = True
+		
+		if remove_entry:
 			print("Removing [" + str(original_entry) + "]")
 	
-	add_entries = ["loglevel=0", "logo.nologo", "console=tty3", "vt.global_cursor_default=0", "vt.cur_default=1", "splash"]
-
 	for add_entry in add_entries:
 		if add_entry not in original_entries:
 			original_entries.append(add_entry)
 			print("Adding [" + str(add_entry) + "]")
 	
-	new_line = ""
-	
+	new_line = ""	
 	for entry in original_entries:
 		new_line += entry + " "
-		
 	new_line = new_line[:-1] # remove the trailing space
 	new_line += os.linesep # add the newline at the end
 	

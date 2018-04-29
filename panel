@@ -24,6 +24,28 @@ Global {
   iconsize=36
 }
 Plugin {
+  type=menu
+  Config {
+    image=/usr/share/raspberrypi-artwork/launch.png
+    system {
+    }
+    separator {
+    }
+    item {
+      name=Run...
+      image=system-run
+      command=run
+    }
+    separator {
+    }
+    item {
+      name=Shutdown...
+      image=system-shutdown
+      command=logout
+    }
+  }
+}
+Plugin {
   type=launchbar
   Config {
     Button {
@@ -31,3 +53,9 @@ Plugin {
     }
   }
 }
+Plugin {
+  type=dhcpcdui
+  Config {
+  }
+}
+

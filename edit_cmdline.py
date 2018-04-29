@@ -39,7 +39,7 @@ if __name__ == "__main__":
 		print("File [" + str(path) + "] Not Found! Exiting")
 		sys.exit()
 	
-	original_entries = line.split(" ")
+	original_entries = line.rstrip().split(" ")
 	
 	remove_entries = ["console=serial0,115200", "plymouth.ignore-serial-consoles", "console=tty1"]
 	
@@ -63,6 +63,7 @@ if __name__ == "__main__":
 		new_line += entry + " "
 		
 	new_line = new_line[:-1] # remove the trailing space
+	new_line += os.linesep # add the newline at the end
 	
 	try:
 		with open(path, 'w+') as file:

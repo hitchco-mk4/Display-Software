@@ -42,7 +42,7 @@ if __name__ == "__main__":
 	
 	original_entries = line.rstrip().split(" ")
 	
-	remove_entries = ["console=serial0,115200", "plymouth.ignore-serial-consoles", "console=tty1"]
+	remove_entries = ["console=serial0,115200", "plymouth.ignore-serial-consoles", "console=tty1", "console=ttyl"]
 	
 	print("Original Entries")
 	

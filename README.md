@@ -8,7 +8,7 @@ It is meant to be run on a [Raspberry Pi](https://www.raspberrypi.org/) embedded
 
 ## One line installation and configuration:
 
-You will need to update the Raspberry Pi's Firmware first. This software is all confirmed to work on `Linux raspberrypi 4.14.37-v7+ #1111 SMP Thu Apr 26 13:56:59 BST 2018 armv7l GNU/Linux`:
+You will need to update the Raspberry Pi's Firmware first. This software is all confirmed to work on `Linux raspberrypi 4.14.37-v7+ #1111 SMP Thu Apr 26 13:56:59 BST 2018 armv7l GNU/Linux` which has a serial port fix:
 
 ```
 sudo rpi-update && sudo reboot
@@ -17,24 +17,24 @@ sudo rpi-update && sudo reboot
 Paste the following line into a terminal on the pi and everything should be installed and configured. If it doesn't work, follow the steps below.
 
 ```
-
+sudo apt-get update -y && sudo apt-get install git curl unclutter mplayer screen -y && curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - && sudo apt-get install nodejs build-essential -y && git clone https://github.com/hitchco-mk4/Display-Software && cd Display-Software && npm install && sudo python3 edit_cmdline.py && sudo mv /boot/config.txt /boot/config.txt.old && sudo mv config.txt /boot/config.txt && sudo mv /home/pi/.config/lxsession/LXDE-pi/autostart /home/pi/.config/lxsession/LXDE-pi/autostart.old && sudo mv autostart /home/pi/.config/lxsession/LXDE-pi/autostart && sudo mv /home/pi/.config/lxpanel/LXDE-pi/panels/panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel.old && sudo mv panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel && sudo touch /home/pi/Desktop/test.desktop && sudo rm /home/pi/Desktop/*.desktop && sudo mv /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf.old && sudo mv desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf && sudo mv /home/pi/.config/openbox/lxde-pi-rc.xml /home/pi/.config/openbox/lxde-pi-rc.xml.old && sudo mv lxde-pi-rc.xml /home/pi/.config/openbox/lxde-pi-rc.xml && pcmanfm --set-wallpaper /home/pi/Display-Software/wallpaper.png && echo "pi:raspberry1" | sudo chpasswd && sudo reboot
 ```
 
 This does the following:
-1. Update - 																					`sudo apt-get update -y`
-1. Install apt packages `git`, `curl`, `unclutter`, `screen` and `mplayer` 						`sudo apt-get install git curl unclutter mplayer screen -y`
-2. Install `node.js` version 6																	`curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - && sudo apt-get install nodejs build-essential -y`
-3. Clone the [github repo](https://github.com/hitchco-mk4/Display-Software) and install			`git clone https://github.com/hitchco-mk4/Display-Software && cd Display-Software && npm install`
+1. Update	 																					`sudo apt-get update -y`
+2. Install apt packages `git`, `curl`, `unclutter`, `screen` and `mplayer` 						`sudo apt-get install git curl unclutter mplayer screen -y`
+3. Install `node.js` version 6																	`curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - && sudo apt-get install nodejs build-essential -y`
+4. Clone the [github repo](https://github.com/hitchco-mk4/Display-Software) and install			`git clone https://github.com/hitchco-mk4/Display-Software && cd Display-Software && npm install`
 5. Make changes to `/boot/cmdline.txt` using the `edit_cmdline.py` utility						`sudo python3 edit_cmdline.py`
-4. Install the correct `/boot/config.txt`														`sudo mv /boot/config.txt /boot/config.txt.old && sudo mv config.txt /boot/config.txt`
-6. Install the LXDE `autostart` script															`sudo mv /home/pi/.config/lxsession/LXDE-pi/autostart /home/pi/.config/lxsession/LXDE-pi/autostart.old && sudo mv autostart /home/pi/.config/lxsession/LXDE-pi/autostart`
-7. Install the LXDE `panel` script																`sudo mv /home/pi/.config/lxpanel/LXDE-pi/panels/panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel.old && sudo mv panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel`
-8. Remove desktop icons																			`sudo touch /home/pi/Desktop/test.desktop && sudo rm /home/pi/Desktop/*.desktop`
-9. Hide the trashcan by setting the desktop items file											`sudo mv /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf.old && sudo mv desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf`
+6. Install the correct `/boot/config.txt`														`sudo mv /boot/config.txt /boot/config.txt.old && sudo mv config.txt /boot/config.txt`
+7. Install the LXDE `autostart` script															`sudo mv /home/pi/.config/lxsession/LXDE-pi/autostart /home/pi/.config/lxsession/LXDE-pi/autostart.old && sudo mv autostart /home/pi/.config/lxsession/LXDE-pi/autostart` 
+8. Install the LXDE `panel` script																`sudo mv /home/pi/.config/lxpanel/LXDE-pi/panels/panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel.old && sudo mv panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel`
+9. Remove desktop icons																			`sudo touch /home/pi/Desktop/test.desktop && sudo rm /home/pi/Desktop/*.desktop`
+10. Hide the trashcan by setting the desktop items file											`sudo mv /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf.old && sudo mv desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf`
 11. Install the correct `lxde-pi-rc.xml` to display the backup camera correctly					`sudo mv /home/pi/.config/openbox/lxde-pi-rc.xml /home/pi/.config/openbox/lxde-pi-rc.xml.old && sudo mv lxde-pi-rc.xml /home/pi/.config/openbox/lxde-pi-rc.xml`
 12. Set the custom wallpaper																	`pcmanfm --set-wallpaper /home/pi/Display-Software/wallpaper.png`
-10. Set the password for the `pi` user to `raspberry1`											`echo "pi:raspberry1" | sudo chpasswd`
-13. Reboot																						`sudo reboot`
+13. Set the password for the `pi` user to `raspberry1`											`echo "pi:raspberry1" | sudo chpasswd`
+14. Reboot																						`sudo reboot`
 
 THE PROBLEM IS PROBABLY WITH USING A 32GB SD CARD VS A 16GB ONE, RE-DO edit_cmdline.py
 

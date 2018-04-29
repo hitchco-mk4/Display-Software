@@ -18,6 +18,7 @@ This entry must be read in and inserted into the new configuration
 """
 
 import sys
+import os
 import shutil
 
 if __name__ == "__main__":

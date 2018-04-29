@@ -7,6 +7,13 @@ It is meant to be run on a [Raspberry Pi](https://www.raspberrypi.org/) embedded
 
 
 ## One line installation and configuration:
+
+You will need to update the Raspberry Pi's Firmware first. This software is all confirmed to work on `Linux raspberrypi 4.14.37-v7+ #1111 SMP Thu Apr 26 13:56:59 BST 2018 armv7l GNU/Linux`:
+
+```
+sudo rpi-update && sudo reboot
+```
+
 Paste the following line into a terminal on the pi and everything should be installed and configured. If it doesn't work, follow the steps below.
 
 ```
@@ -18,7 +25,7 @@ This does the following:
 1. Install apt packages `git`, `curl`, `unclutter`, `screen` and `mplayer` 						`sudo apt-get install git curl unclutter mplayer screen -y`
 2. Install `node.js` version 6																	`curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - && sudo apt-get install nodejs build-essential -y`
 3. Clone the [github repo](https://github.com/hitchco-mk4/Display-Software) and install			`git clone https://github.com/hitchco-mk4/Display-Software && cd Display-Software && npm install`
-5. Install the correct `/boot/cmdline.txt`														`sudo python3 edit_cmdline.py`
+5. Make changes to `/boot/cmdline.txt` using the `edit_cmdline.py` utility						`sudo python3 edit_cmdline.py`
 4. Install the correct `/boot/config.txt`														`sudo mv /boot/config.txt /boot/config.txt.old && sudo mv config.txt /boot/config.txt`
 6. Install the LXDE `autostart` script															`sudo mv /home/pi/.config/lxsession/LXDE-pi/autostart /home/pi/.config/lxsession/LXDE-pi/autostart.old && sudo mv autostart /home/pi/.config/lxsession/LXDE-pi/autostart`
 7. Install the LXDE `panel` script																`sudo mv /home/pi/.config/lxpanel/LXDE-pi/panels/panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel.old && sudo mv panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel`

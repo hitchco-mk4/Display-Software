@@ -1,9 +1,18 @@
 """
 edit_cmdline.py
 
-This is a simple script to modify `/boot/cmdline.txt` on Raspberry Pis.
+This is a simple script to modify `/boot/cmdline.txt` on the Raspberry Pi to do the following:
 
-Within `/boot/cmdline.txt`, the `root=` may be different depending on how the SD card was formatted so you can't just copy paste the whole file from one to another. 
+* Makes a backup of the original file		- If there are problems, roll back to this file
+* Swap `console=tty1` w/ `console=tty3`		- This re-directs kernel messages to tty3, so they won't be displayed on the screen
+* Remove `console=serial0,115200`			- Disable the hardware serial port for login
+* Remove `plymouth.ignore-serial-consoles`	- This will hide the welcome image
+* Add `loglevel=0`							- This hides all messages from the boot screen
+* Add `logo.nologo`							- This removes the Raspberry Pi's from the kernel boot menu
+* Add `vt.global_cursor_default=0`			- This hides the blinking cursor in the kernel boot
+* Add `vt.cur_default=1`					- This hides the blinking cursor in the OS boot
+* Add `splash`								- This hides the welcome to the os image
+
 
 This entry must be read in and inserted into the new configuration
 """
@@ -13,7 +22,15 @@ import shutil
 
 if __name__ == "__main__":
 
-	path = "/boot/cmdline.txt"
+	try:
+		path = sys.argv[1]
+	except IndexError:
+		path = "/boot/cmdline.txt"
+	
+	# create the backup of the file
+	backup_path = path + ".old"
+	shutil.copyfile(path, backup_path)
+	print("Backup of [" + str(path) + "] created at [" + str(backup_path) + "]")
 	
 	try:
 		with open(path, 'r') as file:
@@ -22,49 +39,30 @@ if __name__ == "__main__":
 		print("File [" + str(path) + "] Not Found! Exiting")
 		sys.exit()
 	
-	entries = line.split(" ")
+	original_entries = line.split(" ")
 	
-	root_entry = False
+	remove_entries = ["console=serial0,115200", "plymouth.ignore-serial-consoles", "console=tty1"]
 	
-	for entry in entries:
-		if entry.startswith("root="):
-			root_entry = entry
-			entries.remove(entry)
-			break
-			
-	if root_entry == False:
-		print("Root entry not found! Exiting.")
-		sys.exit()
-				
-	print("Existing Root Entry [" + str(root_entry) + "]")
+	print("Original Entries")
 	
-	backup_path = path + ".old"
+	for original_entry in original_entries:
+		if original_entry in remove_entries:
+			original_entries.remove(original_entry)
+			print("Removing [" + str(original_entry) + "]")
 	
-	shutil.copyfile(path, backup_path)
-	
-	print("Backup of [" + str(path) + "] created at [" + str(backup_path) + "]")
+	add_entries = ["loglevel=0", "logo.nologo", "console=tty3", "vt.global_cursor_default=0", "vt.cur_default=1", "splash"]
 
-	new_entries = [
-		"dwc_otg.lpm_enable=0",
-		"console=tty3",
-		"rootfstype=ext4",
-		"elevator=deadline",
-		"fsck.repair=yes",
-		"rootwait",
-		"quiet",
-		"splash",
-		"loglevel=0",
-		"logo.nologo",
-		"vt.global_cursor_default=0",
-		root_entry
-	]
+	for add_entry in add_entries:
+		if add_entry not in original_entries:
+			original_entries.append(add_entry)
+			print("Adding [" + str(add_entry) + "]")
 	
 	new_line = ""
 	
-	for entry in new_entries:
+	for entry in original_entries:
 		new_line += entry + " "
 		
-	new_line = new_line[:-1]
+	new_line = new_line[:-1] # remove the trailing space
 	
 	try:
 		with open(path, 'w+') as file:

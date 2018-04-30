@@ -20,7 +20,7 @@ Global {
   fontcolor=#ffffff
   usefontsize=0
   background=0
-  backgroundfile=/home/pi/Display-Software/media/wallpaper.png
+  backgroundfile=/home/pi/Display-Software/wallpaper.png
   iconsize=36
 }
 Plugin {

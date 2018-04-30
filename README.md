@@ -21,7 +21,9 @@ sudo apt-get update -y && sudo apt-get install git curl unclutter mplayer screen
 ```
 
 This does the following:
-1. Update	 																					`sudo apt-get update -y`
+
+1. Update
+`sudo apt-get update -y`
 2. Install apt packages `git`, `curl`, `unclutter`, `screen` and `mplayer` 						`sudo apt-get install git curl unclutter mplayer screen -y`
 3. Install `node.js` version 6																	`curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - && sudo apt-get install nodejs build-essential -y`
 4. Clone the [github repo](https://github.com/hitchco-mk4/Display-Software) and install			`git clone https://github.com/hitchco-mk4/Display-Software && cd Display-Software && npm install`
@@ -29,16 +31,11 @@ This does the following:
 6. Install the correct `/boot/config.txt`														`sudo mv /boot/config.txt /boot/config.txt.old && sudo mv config.txt /boot/config.txt`
 7. Install the LXDE `autostart` script															`sudo mv /home/pi/.config/lxsession/LXDE-pi/autostart /home/pi/.config/lxsession/LXDE-pi/autostart.old && sudo mv autostart /home/pi/.config/lxsession/LXDE-pi/autostart` 
 8. Install the LXDE `panel`, this file isn't backed up											`sudo mv panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel`
-
-// 9. Set the custom wallpaper																		`pcmanfm --set-wallpaper /home/pi/Display-Software/wallpaper.png`
-
-10. Remove desktop icons																		`sudo touch /home/pi/Desktop/test.desktop && sudo rm /home/pi/Desktop/*.desktop`
-11. Install the correct `lxde-pi-rc.xml` to display the backup camera correctly					`sudo mv /home/pi/.config/openbox/lxde-pi-rc.xml /home/pi/.config/openbox/lxde-pi-rc.xml.old && sudo mv lxde-pi-rc.xml /home/pi/.config/openbox/lxde-pi-rc.xml`
-12. Hide the trashcan by setting the desktop items file											`sudo mv /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf.old && sudo mv desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf`
-13. Set the password for the `pi` user to `raspberry1`											`echo "pi:raspberry1" | sudo chpasswd`
-14. Reboot																						`sudo reboot`
-
-THE PROBLEM IS PROBABLY WITH USING A 32GB SD CARD VS A 16GB ONE, RE-DO edit_cmdline.py
+9. Remove desktop icons																			`sudo touch /home/pi/Desktop/test.desktop && sudo rm /home/pi/Desktop/*.desktop`
+10. Install the correct `lxde-pi-rc.xml` to display the backup camera correctly					`sudo mv /home/pi/.config/openbox/lxde-pi-rc.xml /home/pi/.config/openbox/lxde-pi-rc.xml.old && sudo mv lxde-pi-rc.xml /home/pi/.config/openbox/lxde-pi-rc.xml`
+11. Hide the trashcan by setting the desktop items file											`sudo mv /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf.old && sudo mv desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf`
+12. Set the password for the `pi` user to `raspberry1`											`echo "pi:raspberry1" | sudo chpasswd`
+13. Reboot																						`sudo reboot`
 
 ## Prerequisites:
 
@@ -144,12 +141,9 @@ The file `/boot/config.txt` on the Raspberry Pi should match the [following](./c
 # Enable audio (loads snd_bcm2835)
 dtparam=audio=on
 
-
 #CUSTOM FIELDS
 lcd_rotate=2
 enable_uart=1
-
-
 disable_splash=1
 ```
 
@@ -162,11 +156,9 @@ Note that the line `root=PARTUUID=8f87bb40-02` should match entry in the origina
 
 The file `/home/pi/.config/lxsession/LXDE-pi/autostart` on the Raspberry Pi should match the [following](./autostart):
 ```
-# @lxpanel --profile LXDE-pi
+@lxpanel --profile LXDE-pi
 @pcmanfm --desktop --profile LXDE-pi
 @xscreensaver -no-splash
-@point-rpi
-
 
 # Run Electron At Boot
 @screen -d -m npm start --prefix /home/pi/Display-Software
@@ -177,7 +169,7 @@ The file `/home/pi/.config/lxsession/LXDE-pi/autostart` on the Raspberry Pi shou
 @xset s noexpose
 @xset dpms 0 0 0
 
-# Auto-hide the mouse
+# Auto-hide the mouse unlessed moved
 @unclutter -idle 0.1
 ```
 
@@ -205,8 +197,30 @@ Global {
   fontcolor=#ffffff
   usefontsize=0
   background=0
-  backgroundfile=/usr/share/lxpanel/images/background.png
+  backgroundfile=/home/pi/Display-Software/wallpaper.png
   iconsize=36
+}
+Plugin {
+  type=menu
+  Config {
+    image=/usr/share/raspberrypi-artwork/launch.png
+    system {
+    }
+    separator {
+    }
+    item {
+      name=Run...
+      image=system-run
+      command=run
+    }
+    separator {
+    }
+    item {
+      name=Shutdown...
+      image=system-shutdown
+      command=logout
+    }
+  }
 }
 Plugin {
   type=launchbar
@@ -214,6 +228,11 @@ Plugin {
     Button {
       id=lxterminal.desktop
     }
+  }
+}
+Plugin {
+  type=dhcpcdui
+  Config {
   }
 }
 ```
@@ -255,7 +274,6 @@ run "v4l2-ctl --set-ctrl saturation=29"
 ```
 
 The file `/home/pi/.config/openbox/lxde-pi-rc.xml` should have the following block inserted inside of the `<applications>` tags:
-
 ```
 <application name="x11" class="MPlayer">
 <decor>no</decor>
@@ -264,16 +282,9 @@ The file `/home/pi/.config/openbox/lxde-pi-rc.xml` should have the following blo
 <y>center</y>
 </position>
 </application>
-
 ```
 
 The full file should match [this](./lxde-pi-rc.xml) file.
-
-There are a few ways to set the wallpaper, but the one I have found the work the most reliably is to use:
-```
-pcmanfm --set-wallpaper /home/pi/Display-Software/wallpaper.png
-```
-
 
 Finally, reboot the Raspberry Pi:
 ```

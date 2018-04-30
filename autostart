@@ -1,7 +1,6 @@
 @lxpanel --profile LXDE-pi
 @pcmanfm --desktop --profile LXDE-pi
 @xscreensaver -no-splash
-@point-rpi
 
 # Run Electron At Boot
 @screen -d -m npm start --prefix /home/pi/Display-Software
@@ -12,5 +11,5 @@
 @xset s noexpose
 @xset dpms 0 0 0
 
-# Hide the mouse
+# Hide the mouse unless moved
 @unclutter -idle 0.1

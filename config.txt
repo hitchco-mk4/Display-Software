@@ -55,7 +55,6 @@
 # Enable audio (loads snd_bcm2835)
 dtparam=audio=on
 
-
 #CUSTOM FIELDS
 lcd_rotate=2
 enable_uart=1

@@ -58,3 +58,5 @@ typings/
 .env
 
 virgin_cmdline.txt
+
+odometer.json

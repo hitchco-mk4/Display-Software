@@ -17,13 +17,13 @@ sudo rpi-update && sudo reboot
 Paste the following line into a terminal on the pi and everything should be installed and configured. If it doesn't work, follow the steps below.
 
 ```
-sudo apt-get update -y && sudo apt-get install git curl unclutter mplayer screen -y && curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - && sudo apt-get install nodejs build-essential -y && git clone https://github.com/hitchco-mk4/Display-Software && cd Display-Software && npm install && sudo python3 edit_cmdline.py && sudo mv /boot/config.txt /boot/config.txt.old && sudo mv config.txt /boot/config.txt && sudo mv /home/pi/.config/lxsession/LXDE-pi/autostart /home/pi/.config/lxsession/LXDE-pi/autostart.old && sudo mv autostart /home/pi/.config/lxsession/LXDE-pi/autostart && sudo mv panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel && sudo touch /home/pi/Desktop/test.desktop && sudo rm /home/pi/Desktop/*.desktop && sudo mv /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf.old && sudo mv desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf && sudo mv /home/pi/.config/openbox/lxde-pi-rc.xml /home/pi/.config/openbox/lxde-pi-rc.xml.old && sudo mv lxde-pi-rc.xml /home/pi/.config/openbox/lxde-pi-rc.xml && echo "pi:raspberry1" | sudo chpasswd && sudo reboot
+sudo apt-get update -y && sudo apt-get install git curl unclutter mplayer screen xdotool -y && curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - && sudo apt-get install nodejs build-essential -y && git clone https://github.com/hitchco-mk4/Display-Software && cd Display-Software && npm install && sudo python3 edit_cmdline.py && sudo mv /boot/config.txt /boot/config.txt.old && sudo mv config.txt /boot/config.txt && sudo mv /home/pi/.config/lxsession/LXDE-pi/autostart /home/pi/.config/lxsession/LXDE-pi/autostart.old && sudo mv autostart /home/pi/.config/lxsession/LXDE-pi/autostart && sudo mv panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel && sudo touch /home/pi/Desktop/test.desktop && sudo rm /home/pi/Desktop/*.desktop && sudo mv /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf.old && sudo mv desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf && sudo mv /home/pi/.config/openbox/lxde-pi-rc.xml /home/pi/.config/openbox/lxde-pi-rc.xml.old && sudo mv lxde-pi-rc.xml /home/pi/.config/openbox/lxde-pi-rc.xml && echo "pi:raspberry1" | sudo chpasswd && sudo reboot
 ```
 
 This does the following:
 
 1. **Update** `sudo apt-get update -y`
-2. **Install apt packages `git`, `curl`, `unclutter`, `screen` and `mplayer`**					`sudo apt-get install git curl unclutter mplayer screen -y`
+2. **Install apt packages `git`, `curl`, `unclutter`, `screen`, `mplayer` and xdotool**			`sudo apt-get install git curl unclutter mplayer screen xdotool -y`
 3. **Install `node.js` version 6**																`curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - && sudo apt-get install nodejs build-essential -y`
 4. **Clone the [github repo](https://github.com/hitchco-mk4/Display-Software) and install**		`git clone https://github.com/hitchco-mk4/Display-Software && cd Display-Software && npm install`
 5. **Make changes to `/boot/cmdline.txt` using the `edit_cmdline.py` utility**					`sudo python3 edit_cmdline.py`
@@ -348,6 +348,6 @@ xdotool windowminimize $(xdotool search --class "mplayer")
 
 To maximize (un-minimize) it, run:
 ```
-xdotool windowactivate  $(xdotool search --class "mplayer")
+xdotool windowactivate $(xdotool search --class "mplayer")
 ```
 

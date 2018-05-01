@@ -1,6 +1,7 @@
 const electron = require('electron');
 const fork = require('child_process').fork;
 const exec = require('child_process').exec;
+const exec_sync = require('child_process').execSync;
 var powerOff = require('power-off');
 const path = require('path');
 const url = require('url');
@@ -57,7 +58,9 @@ function createWindow () {
 	})
 	
 	log_function("Starting Backup Camera Process");
-	exec('mplayer -xy 600 -input file=/home/pi/Display-Software/mplayer.settings  tv://device=/dev/video0:width=300:height=220');
+	
+	// exec('mplayer -xy 400 -input file=/home/pi/Display-Software/mplayer.settings  tv://device=/dev/video0:width=300:height=220');
+	//hide_backup_camera();
 }
 
 function startWorker() {
@@ -110,6 +113,54 @@ function intToBool(i) {
 	else {
 		return false
 	}
+}
+
+function wait_for_window(window_name, on_done) {
+	
+	log_function("Waiting for window [" + window_name + "] to be on top");
+	
+	var maxcounts = 30;
+	var count = 0; 
+	var interval = setInterval(function(){
+		
+		result = exec_sync('xdotool getactivewindow getwindowname').toString().trim();
+		
+		if (result == window_name) {
+			log_function("Window [" + window_name + "] found!");
+			clearInterval(interval);
+			on_done();
+		}
+		else {
+			log_function("Window [" + window_name + "] wasn't top, top window [" + result + "]");
+		}
+		
+		count++;
+		if (count > maxcounts)
+		{
+			clearInterval(interval);
+		}
+		
+	},100);	
+}
+
+function hide_backup_camera() {
+	wait_for_window("MPlayer", function() {
+		log_function("Found Mplayer");
+		exec('xdotool windowminimize $(xdotool search --class "MPlayer")');
+		wait_for_window("car-HUD", function(){
+			log_function("Mplayer gone");
+		});
+	});
+}
+
+function show_backup_camera() {
+	wait_for_window("car-HUD", function() {
+		log_function("Found Mplayer");
+		exec('xdotool windowactivate $(xdotool search --class "MPlayer")');
+		wait_for_window("MPlayer", function(){
+			log_function("Mplayer on top");
+		});
+	});
 }
 
 // Fires on new data from the arduino_reader process
@@ -214,20 +265,20 @@ hardware_process.on('message', (m) => {
 	if (rvrs) {
 		if (backup_cam_on == false) {
 			log_function("Maximizing backup camera window");
-			exec('xdotool windowactivate  $(xdotool search --class "mplayer")');
+			// show_backup_camera();
 			backup_cam_on = true;
 		}
 	}
 	else {
 		if (backup_cam_on == true) {
 			log_function("Minimizing backup camera window");
-			exec('xdotool windowminimize $(xdotool search --class "mplayer")');
+			// hide_backup_camera();
 			backup_cam_on = false;
 		}
 	}
 	
-	//log_function("Sending JSON to renderer: ");
-	//log_function(JSON.stringify(displayJSON));
+	log_function("Sending JSON to renderer: ");
+	log_function(JSON.stringify(displayJSON));
 	
 	arduino_thread_ready = true;
 });

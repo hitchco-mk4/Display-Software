@@ -57,7 +57,7 @@ function createWindow () {
 	})
 	
 	log_function("Starting Backup Camera Process");
-	exec('mplayer -xy 650 -input file=/home/pi/Display-Software/mplayer.settings  tv://device=/dev/video0:width=300:height=220');
+	exec('mplayer -xy 600 -input file=/home/pi/Display-Software/mplayer.settings  tv://device=/dev/video0:width=300:height=220');
 }
 
 function startWorker() {

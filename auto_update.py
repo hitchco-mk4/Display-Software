@@ -13,7 +13,7 @@ import subprocess
 
 
 def blocking_run(command):
-	return subprocess.run(command, shell=True, stdout=subprocess.PIPE).stdout
+	return str(subprocess.run(command, shell=True, stdout=subprocess.PIPE).stdout)
 
 	
 if __name__ == "__main__":
@@ -36,7 +36,7 @@ if __name__ == "__main__":
 		
 	result = blocking_run(pull)
 	
-	if result.contains("Updating"):
+	if "Updating" in result:
 		blocking_run("npm install ---prefix /home/pi/Display-Software/")
 		
 	

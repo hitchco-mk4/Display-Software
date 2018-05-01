@@ -1,7 +1,9 @@
 '''
 auto_update.py
 
+Pull from the Display-Software remote GitHub repo master branch. If there are changes there, it runs `npm install`
 
+Should allow developer to only have to worry about putting files into git.
 
 '''
 
@@ -34,6 +36,7 @@ if __name__ == "__main__":
 		
 	result = blocking_run(pull)
 	
-	print(result)
+	if result.contains("Updating"):
+		blocking_run("npm install ---prefix /home/pi/Display-Software/")
 		
 	

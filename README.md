@@ -153,6 +153,9 @@ The file `/home/pi/.config/lxsession/LXDE-pi/autostart` on the Raspberry Pi shou
 @pcmanfm --desktop --profile LXDE-pi
 @xscreensaver -no-splash
 
+# Automatically pull from the master branch of github on boot
+@python3 /home/pi/Display-Software/auto_update.py
+
 # Run Electron At Boot
 @screen -d -m npm start --prefix /home/pi/Display-Software
 
@@ -162,7 +165,7 @@ The file `/home/pi/.config/lxsession/LXDE-pi/autostart` on the Raspberry Pi shou
 @xset s noexpose
 @xset dpms 0 0 0
 
-# Auto-hide the mouse unlessed moved
+# Hide the mouse unless moved
 @unclutter -idle 0.1
 ```
 

@@ -13,7 +13,6 @@ This is a simple script to modify `/boot/cmdline.txt` on the Raspberry Pi to do 
 * Add `vt.cur_default=1`					- This hides the blinking cursor in the OS boot
 * Add `splash`								- This hides the welcome to the os image
 
-
 This entry must be read in and inserted into the new configuration
 """
 

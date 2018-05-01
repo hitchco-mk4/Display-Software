@@ -2,6 +2,9 @@
 @pcmanfm --desktop --profile LXDE-pi
 @xscreensaver -no-splash
 
+# Automatically pull from the master branch of github on boot
+@python3 /home/pi/Display-Software/auto_update.py
+
 # Run Electron At Boot
 @screen -d -m npm start --prefix /home/pi/Display-Software
 

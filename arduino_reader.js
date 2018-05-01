@@ -1,5 +1,6 @@
 var SerialPort = require('serialport');
 var serialport_path = "/dev/serial0";
+var port;
 
 var block_size = 64;
 
@@ -69,14 +70,29 @@ function process_message(m) {
 			
 			block_json.error = true;
 			
-			log_function("Starting Serial Port at [" + serialport_path + "]");
 
-			var port = new SerialPort(serialport_path, {
-				  parser: SerialPort.parsers.byteLength(block_size),
-				  baudRate: 115200
-			});
+			function new_serialport() {
+				
+				log_function("Starting Serial Port at [" + serialport_path + "]");
+				try {
+					if (port.isOpen) {
+						port.close();
+						arduino_ready = false;
+					}	
+				} 
+				catch (e) {
+					
+				}
+				
+				port = new SerialPort(serialport_path, {
+					  parser: SerialPort.parsers.byteLength(block_size),
+					  baudRate: 9600
+				});	
+				
+				log_function("Serial Port Created [" + String(port) + "]");
+			}
 			
-			log_function("Serial Port Created [" + String(port) + "]");
+			new_serialport();
 			
 			function error(err) {
 				if (err) {
@@ -87,6 +103,7 @@ function process_message(m) {
 			function clear_port(){
 				port.flush();
 				port.drain(error);
+				// new_serialport();
 			}
 			
 			// The open event is always emitted
@@ -97,20 +114,30 @@ function process_message(m) {
 			});
 			
 			// open errors will be emitted as an error event 
-			port.on('error', error);
+			port.on('error', function (error){
+				log_function("Serial port got error " + String(error));
+			});
 
 			// fires whenever data arrives on the input buffer
 			port.on('data', function (data) {
+				
 				log_function("Got a message back from the Arduino: [" + String(data) + "]");
 				
 				var incoming_crc = data.slice(63,64).readUInt8();
 				var buffer_as_numbers = [];
+				
 				for (var i = 0; i < block_size - 1; i++) {
 					buffer_as_numbers.push(data.slice(i,i+1).readUInt8());
 				}
+				
+				log_function("Raw Bytes " + String(buffer_as_numbers));
+				
 				var calculated_crc = calc_crc(buffer_as_numbers);
 				
 				var crc_pass = incoming_crc == calculated_crc;
+				
+				log_function("Incoming CRC " + String(incoming_crc));
+				log_function("Calculated CRC " + String(calculated_crc));
 				
 				if (crc_pass) {
 					
@@ -166,6 +193,13 @@ function process_message(m) {
 					block_json.b5 = b5;
 					block_json.b6 = b6;
 					
+					log_function("CRC Passed!");
+					
+				}
+				
+				else {
+					log_function("CRC Failed!");
+					clear_port();
 				}
 				
 				block_json.error = !crc_pass;
@@ -192,7 +226,7 @@ function process_message(m) {
 					log_function("Still waiting for last response, [" + String(serial_error_count) + "] waits");
 					serial_error_count++;
 					
-					if (serial_error_count > 100) {
+					if (serial_error_count > 5) {
 						log_function("Big Problem");
 						
 						clear_port();

@@ -15,8 +15,6 @@ var previous_miles_this_trip = 0;
 var arduino_thread_ready = true;
 var backup_cam_on = false;
 
-var proc; 
-
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow;
 
@@ -59,9 +57,7 @@ function createWindow () {
 	})
 	
 	log_function("Starting Backup Camera Process");
-	proc = exec('mplayer -vf scale -zoom -xy 400 -input file=/home/pi/Display-Software/mplayer.settings  tv://device=/dev/video0');
-	
-	
+	exec('mplayer -xy 650 -input file=/home/pi/Display-Software/mplayer.settings  tv://device=/dev/video0:width=300:height=220');
 }
 
 function startWorker() {
@@ -69,7 +65,7 @@ function startWorker() {
 	hardware_process.send("start");
 	setInterval(function() {
 		if (arduino_thread_ready) { 
-			log_function("Asking arduino_reader for data");
+			// log_function("Asking arduino_reader for data");
 			hardware_process.send("get");
 			arduino_thread_ready = false;
 		}
@@ -129,8 +125,8 @@ hardware_process.on('message', (m) => {
 	
 	var report_json = JSON.parse(m);
 	
-	log_function("Got JSON from arduino_reader: ");
-	log_function(JSON.stringify(report_json));
+	//log_function("Got JSON from arduino_reader: ");
+	//log_function(JSON.stringify(report_json));
 	
 	//log_function("Re-mapping arduino JSON for renderer");
 	
@@ -217,14 +213,15 @@ hardware_process.on('message', (m) => {
 	
 	if (rvrs) {
 		if (backup_cam_on == false) {
-			
+			log_function("Maximizing backup camera window");
+			exec('xdotool windowactivate  $(xdotool search --class "mplayer")');
 			backup_cam_on = true;
 		}
 	}
 	else {
 		if (backup_cam_on == true) {
-			log_function("Killing Backup Camera Process");
-			proc.kill;
+			log_function("Minimizing backup camera window");
+			exec('xdotool windowminimize $(xdotool search --class "mplayer")');
 			backup_cam_on = false;
 		}
 	}

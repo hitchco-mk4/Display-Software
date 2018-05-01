@@ -6,7 +6,7 @@ It is meant to be run on a [Raspberry Pi](https://www.raspberrypi.org/) embedded
 ## Software Organization:
 
 
-## One line installation and configuration:
+## Quick installation and configuration:
 
 You will need to update the Raspberry Pi's Firmware first. This software is all confirmed to work on `Linux raspberrypi 4.14.37-v7+ #1111 SMP Thu Apr 26 13:56:59 BST 2018 armv7l GNU/Linux` which has a serial port fix:
 
@@ -22,33 +22,31 @@ sudo apt-get update -y && sudo apt-get install git curl unclutter mplayer screen
 
 This does the following:
 
-1. Update
-`sudo apt-get update -y`
-2. Install apt packages `git`, `curl`, `unclutter`, `screen` and `mplayer` 						`sudo apt-get install git curl unclutter mplayer screen -y`
-3. Install `node.js` version 6																	`curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - && sudo apt-get install nodejs build-essential -y`
-4. Clone the [github repo](https://github.com/hitchco-mk4/Display-Software) and install			`git clone https://github.com/hitchco-mk4/Display-Software && cd Display-Software && npm install`
-5. Make changes to `/boot/cmdline.txt` using the `edit_cmdline.py` utility						`sudo python3 edit_cmdline.py`
-6. Install the correct `/boot/config.txt`														`sudo mv /boot/config.txt /boot/config.txt.old && sudo mv config.txt /boot/config.txt`
-7. Install the LXDE `autostart` script															`sudo mv /home/pi/.config/lxsession/LXDE-pi/autostart /home/pi/.config/lxsession/LXDE-pi/autostart.old && sudo mv autostart /home/pi/.config/lxsession/LXDE-pi/autostart` 
-8. Install the LXDE `panel`, this file isn't backed up											`sudo mv panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel`
-9. Remove desktop icons																			`sudo touch /home/pi/Desktop/test.desktop && sudo rm /home/pi/Desktop/*.desktop`
-10. Install the correct `lxde-pi-rc.xml` to display the backup camera correctly					`sudo mv /home/pi/.config/openbox/lxde-pi-rc.xml /home/pi/.config/openbox/lxde-pi-rc.xml.old && sudo mv lxde-pi-rc.xml /home/pi/.config/openbox/lxde-pi-rc.xml`
-11. Hide the trashcan by setting the desktop items file											`sudo mv /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf.old && sudo mv desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf`
-12. Set the password for the `pi` user to `raspberry1`											`echo "pi:raspberry1" | sudo chpasswd`
-13. Reboot																						`sudo reboot`
+1. **Update** `sudo apt-get update -y`
+2. **Install apt packages `git`, `curl`, `unclutter`, `screen` and `mplayer`**					`sudo apt-get install git curl unclutter mplayer screen -y`
+3. **Install `node.js` version 6**																`curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - && sudo apt-get install nodejs build-essential -y`
+4. **Clone the [github repo](https://github.com/hitchco-mk4/Display-Software) and install**		`git clone https://github.com/hitchco-mk4/Display-Software && cd Display-Software && npm install`
+5. **Make changes to `/boot/cmdline.txt` using the `edit_cmdline.py` utility**					`sudo python3 edit_cmdline.py`
+6. **Install the correct `/boot/config.txt`**													`sudo mv /boot/config.txt /boot/config.txt.old && sudo mv config.txt /boot/config.txt`
+7. **Install the LXDE `autostart` script**														`sudo mv /home/pi/.config/lxsession/LXDE-pi/autostart /home/pi/.config/lxsession/LXDE-pi/autostart.old && sudo mv autostart /home/pi/.config/lxsession/LXDE-pi/autostart` 
+8. **Install the LXDE `panel`, this file isn't backed up**										`sudo mv panel /home/pi/.config/lxpanel/LXDE-pi/panels/panel`
+9. **Remove desktop icons**																		`sudo touch /home/pi/Desktop/test.desktop && sudo rm /home/pi/Desktop/*.desktop`
+10. **Install the correct `lxde-pi-rc.xml` to display the backup camera correctly**				`sudo mv /home/pi/.config/openbox/lxde-pi-rc.xml /home/pi/.config/openbox/lxde-pi-rc.xml.old && sudo mv lxde-pi-rc.xml /home/pi/.config/openbox/lxde-pi-rc.xml`
+11. **Hide the trashcan by setting the desktop items file**										`sudo mv /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf.old && sudo mv desktop-items-0.conf /home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf`
+12. **Set the password for the `pi` user to `raspberry1`**										`echo "pi:raspberry1" | sudo chpasswd`
+13. **Reboot**																					`sudo reboot`
 
-## Prerequisites:
+## Manual Installation
+### Prerequisites:
 
 This software has only been verified to work on the [September 2017 version of Raspian Stretch With Desktop](https://downloads.raspberrypi.org/raspbian_latest)
 
 Installation is based on git, install git with:
-
 ```
 sudo apt-get install git
 ```
 
 You also need Node (and npm) for installation:
-
 ```
 sudo apt-get install curl
 curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
@@ -57,30 +55,26 @@ sudo apt-get install -y build-essential
 ```
 
 The Unclutter package is used to hide UI elements from the os. Install with:
-
 ```
 sudo apt-get install unclutter
 ```
 
 MPlayer is used to view the backup camera. Install it with:
-
 ```
 sudo apt-get mplayer
 ```
 
-## Installing
+### Installing `node.js` software:
 
 Download the package from git and then use NPM to install
-
 ```
 git clone https://github.com/hitchco-mk4/Display-Software
 cd Display-Software
 npm install
 ```
-
 Electron needs to build serialport against the version of Node it ships with, but this should happen automatically.
 
-## Configuring
+### Configuring
 
 The file `/boot/config.txt` on the Raspberry Pi should match the [following](./config.txt):
 ```
@@ -147,11 +141,10 @@ enable_uart=1
 disable_splash=1
 ```
 
-The file `/boot/cmdline.txt` on the Raspberry Pi should match the following:
+Run `edit_cmdline.py` as root on the Raspberry Pi to automatically configure `/boot/cmdline.txt`:
 ```
-dwc_otg.lpm_enable=0 console=tty3 root=PARTUUID=8f87bb40-02 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet splash loglevel=0 logo.nologo vt.global_cursor_default=0
+sudo python3 edit_cmdline.py
 ```
-Note that the line `root=PARTUUID=8f87bb40-02` should match entry in the original `/boot/cmdline.txt`.
 
 
 The file `/home/pi/.config/lxsession/LXDE-pi/autostart` on the Raspberry Pi should match the [following](./autostart):
@@ -239,7 +232,7 @@ Plugin {
 
 Remove all desktop icons:
 ```
-rm /home/pi/Desktop/*.desktop
+touch /home/pi/Desktop/tmp.desktop && rm /home/pi/Desktop/*.desktop
 ```
 
 The file `/home/pi/.config/pcmanfm/LXDE-pi/desktop-items-0.conf` on the Raspberry Pi should match the [following](./desktop-items-0.conf):
@@ -259,7 +252,7 @@ show_trash=0
 show_mounts=0
 prefs_app=SUDO_ASKPASS=/usr/bin/pwdpip.sh pipanel
 ```
-This hides the trashcan, and installs the custom wallpaper.
+This hides the trashcan, and finishes installing the custom wallpaper.
 
 The password should be changed to `raspberry1` to avoid the warning message on the desktop. Run the following command:
 ```
@@ -340,6 +333,18 @@ The backup camera is a complex part of this system and is worth a little bit of 
 If you want to open the webcam window, use the following command in the `Display-Software` directory: 
 
 ```
-mplayer -vf scale -zoom -xy 400 -input file=mplayer.settings  tv://device=/dev/video0
+mplayer -xy 350 -input file=/home/pi/Display-Software/mplayer.settings  tv://device=/dev/video0:width=300:height=220
+```
+
+The window should appear boarderless and windowless as set by `lxde-pi-rc.xml`. 
+
+To minimize it, run
+```
+xdotool windowminimize $(xdotool search --class "mplayer")
+```
+
+To maximize (un-minimize) it, run:
+```
+xdotool windowactivate  $(xdotool search --class "mplayer")
 ```
 

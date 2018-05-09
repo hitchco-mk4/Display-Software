@@ -336,7 +336,7 @@ The backup camera is a complex part of this system and is worth a little bit of 
 If you want to open the webcam window, use the following command in the `Display-Software` directory: 
 
 ```
-mplayer -xy 350 -input file=/home/pi/Display-Software/mplayer.settings  tv://device=/dev/video0:width=300:height=220
+mplayer -vf mirror -xy 350 -input file=/home/pi/Display-Software/mplayer.settings  tv://device=/dev/video0:width=300:height=220
 ```
 
 The window should appear boarderless and windowless as set by `lxde-pi-rc.xml`. 

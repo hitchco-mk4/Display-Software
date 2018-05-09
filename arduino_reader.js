@@ -35,6 +35,32 @@ function process_message(m) {
 	switch(m) {
 		
 		case "get":
+							 
+			if (arduino_ready) {
+				
+				var message_bytes = ['0'];
+				
+				write_drain(port, message_bytes, error);
+
+				// log_function("Sent message to arduino: [" + String(message_bytes) + "]");
+				
+				serial_error_count = 0;
+				
+				arduino_ready = false;
+			}
+			else {
+				// log_function("Still waiting for last response, [" + String(serial_error_count) + "] waits");
+				serial_error_count++;
+				
+				if (serial_error_count > 5) {
+					// log_function("Big Problem");
+					
+					clear_port();
+					
+					block_json.error = true;
+					arduino_ready = true;
+				}
+			}
 			
 			process.send(JSON.stringify(block_json));
 			
@@ -207,36 +233,6 @@ function process_message(m) {
 				arduino_ready = true;
 			});
 			
-			// Start polling the arduino 
-			setInterval(function() {
-				 
-				if (arduino_ready) {
-					
-					var message_bytes = ['0'];
-					
-					write_drain(port, message_bytes, error);
-
-					// log_function("Sent message to arduino: [" + String(message_bytes) + "]");
-					
-					serial_error_count = 0;
-					
-					arduino_ready = false;
-				}
-				else {
-					// log_function("Still waiting for last response, [" + String(serial_error_count) + "] waits");
-					serial_error_count++;
-					
-					if (serial_error_count > 5) {
-						// log_function("Big Problem");
-						
-						clear_port();
-						
-						block_json.error = true;
-						arduino_ready = true;
-					}
-				}
-			}, 100);
-				
 			break;
 	}
 }

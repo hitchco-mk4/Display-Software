@@ -14,7 +14,9 @@ var last_left_blink_state = 0;
 var last_right_blink_state = 0;
 var previous_miles_this_trip = 0;
 var arduino_thread_ready = true;
-var backup_cam_on = false;
+var backup_cam_on = true;
+
+var making_window_change = false; 
 
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow;
@@ -29,6 +31,14 @@ const processConfig = {
 }
 
 var hardware_process = fork('./arduino_reader.js', options=processConfig);
+
+function start_backup_camera() {
+	exec('mplayer -vf mirror -xy 600 -input file=/home/pi/Display-Software/mplayer.settings  tv://device=/dev/video0:width=300:height=220');
+}
+
+function stop_backup_camera(){
+	exec('killall MPlayer');
+}
 
 function createWindow () {
 	// Create the browser window.
@@ -59,8 +69,25 @@ function createWindow () {
 	
 	log_function("Starting Backup Camera Process");
 	
-	// exec('mplayer -xy 400 -input file=/home/pi/Display-Software/mplayer.settings  tv://device=/dev/video0:width=300:height=220');
-	//hide_backup_camera();
+	start_backup_camera();
+	
+	// start a process to make sure the true state of the cam window matches the one this software thinks it is
+	
+	setInterval(function(){
+		if (making_window_change == false) {
+			var true_state;
+			if (get_current_window() == "MPlayer") {
+				true_state = true;
+			}
+			else {
+				true_state = false;
+			}
+			if (true_state != backup_cam_on) {
+				backup_cam_on = true_state;
+				log_function("Internal camera state corrected");
+			}
+		}
+	}, 1000);
 }
 
 function startWorker() {
@@ -115,52 +142,124 @@ function intToBool(i) {
 	}
 }
 
-function wait_for_window(window_name, on_done) {
+function get_current_window() {
+	return exec_sync('xdotool getactivewindow getwindowname').toString().trim();
+}
+
+function wait_for_window(window_name, on_pass, on_fail) {
 	
 	log_function("Waiting for window [" + window_name + "] to be on top");
 	
-	var maxcounts = 30;
+	var maxcounts = 10;
 	var count = 0; 
+	
 	var interval = setInterval(function(){
 		
-		result = exec_sync('xdotool getactivewindow getwindowname').toString().trim();
+		result = get_current_window();
 		
 		if (result == window_name) {
-			log_function("Window [" + window_name + "] found!");
+			log_function("Window [" + window_name + "] on top");
 			clearInterval(interval);
-			on_done();
+			on_pass();
 		}
 		else {
 			log_function("Window [" + window_name + "] wasn't top, top window [" + result + "]");
 		}
 		
 		count++;
-		if (count > maxcounts)
+		if (count >= maxcounts)
 		{
-			clearInterval(interval);
+			clearInterval(interval); // stops running the command
+			on_fail();
 		}
-		
-	},100);	
+	},1000);	
+}
+
+function window_change(wait_for, fail_function1, run_command, pass_function, fail_function2) {
+	wait_for_window(
+		wait_for, 
+		function() {
+			exec(run_command);
+			wait_for_window(
+				"car-HUD", 
+				function(){
+					pass_function();
+				},
+				function(){
+					fail_function2();
+				}
+			);
+		},
+		function(){
+			fail_function1();
+		}
+	);
 }
 
 function hide_backup_camera() {
-	wait_for_window("MPlayer", function() {
-		log_function("Found Mplayer");
-		exec('xdotool windowminimize $(xdotool search --class "MPlayer")');
-		wait_for_window("car-HUD", function(){
-			log_function("Mplayer gone");
-		});
+	
+	log_function("-- Trying to hide MPlayer --");
+	
+	window_change("MPlayer", 
+	
+	function(){
+		log_function("MPlayer couldn't be hidden because it was never on top");
+	},
+	
+	'xdotool windowminimize $(xdotool search --class "MPlayer")', 
+	
+	function() {
+		log_function("MPlayer Hidden");
+	},
+	
+	function() {
+		log_function("Couldn't hide MPlayer, manually killing process");
+		stop_backup_camera();
 	});
 }
 
 function show_backup_camera() {
-	wait_for_window("car-HUD", function() {
-		log_function("Found Mplayer");
-		exec('xdotool windowactivate $(xdotool search --class "MPlayer")');
-		wait_for_window("MPlayer", function(){
-			log_function("Mplayer on top");
-		});
+	
+	log_function("-- Trying to show MPlayer --");
+	
+	window_change("car-HUD", 
+	
+	function(){
+		log_function("MPlayer couldn't be shown because car-HUD was never on top");
+	},
+	
+	'xdotool windowactivate $(xdotool search --class "MPlayer")', 
+	
+	function() {
+		log_function("MPlayer Shown");
+	},
+	
+	function() {
+		log_function("Couldn't show MPlayer, restarting process");
+		start_backup_camera();
 	});
+}
+
+function getOdometerCountFromDisk() {
+	
+	var count = 0; 
+	
+	try {
+		file = fs.readFileSync('odometer.json', 'utf8');
+		json = JSON.parse(file);
+		count = json.count;
+	}
+	catch(err) { // will throw an error on the first run because the file shouldn't exist
+		count  = 0;
+	}
+	
+	return count;
+}
+
+function setOdometerCountToDisk(newCount) {
+	var json = { "count" : newCount }; 
+	var json_string = JSON.stringify(json);
+	fs.writeFileSync('odometer.json', json_string);
 }
 
 // Fires on new data from the arduino_reader process
@@ -183,10 +282,11 @@ hardware_process.on('message', (m) => {
 	
 	var miles_this_trip = report_json.f7;
 	
-	var odometer_count = initial_odometer_count + miles_this_trip;
-
-	if (isNaN(odometer_count)) { // for some reason, newRotations is sometimes null, this prevents problems with these
-		odometer_count = 0;
+	if (miles_this_trip > 0) {
+		var odometer_count = initial_odometer_count + miles_this_trip;
+		if (isNaN(odometer_count)) { // for some reason, newRotations is sometimes null, this prevents problems with these
+			odometer_count = 0;
+		}
 	}
 	
 	setOdometerCountToDisk(odometer_count); // commit this to disk often
@@ -206,6 +306,7 @@ hardware_process.on('message', (m) => {
 	var shut_off_pi = intToBool(report_json.b2); 
 	var left = intToBool(report_json.b3);
 	var right = intToBool(report_json.b4);
+	var error = intToBool(report_json.error);
 	
 	var state_number_to_name = {0: "Combo", 1: "Auto Start", 2: "Running", 3: "Shutoff", 4: "Limbo"};
 	var state = report_json.i2;
@@ -242,7 +343,7 @@ hardware_process.on('message', (m) => {
 		RIGHT: right,
 		
 		shutdown : shut_off_pi,				// to show the pi is going down
-		error: report_json.error,			// alarm image
+		error: error,						// alarm image
 		state: state_text,
 	};
 		
@@ -264,43 +365,21 @@ hardware_process.on('message', (m) => {
 	
 	if (rvrs) {
 		if (backup_cam_on == false) {
-			log_function("Maximizing backup camera window");
-			// show_backup_camera();
+			show_backup_camera();
 			backup_cam_on = true;
-		}
+		}	
 	}
 	else {
 		if (backup_cam_on == true) {
-			log_function("Minimizing backup camera window");
-			// hide_backup_camera();
+			hide_backup_camera();
 			backup_cam_on = false;
 		}
 	}
-	
-	log_function("Sending JSON to renderer: ");
-	log_function(JSON.stringify(displayJSON));
+
+	if (error) {
+		log_function("Arduino Error");
+	}
 	
 	arduino_thread_ready = true;
 });
 
-function getOdometerCountFromDisk() {
-	
-	var count = 0; 
-	
-	try {
-		file = fs.readFileSync('odometer.json', 'utf8');
-		json = JSON.parse(file);
-		count = json.count;
-	}
-	catch(err) { // will throw an error on the first run because the file shouldn't exist
-		count  = 0;
-	}
-	
-	return count;
-}
-
-function setOdometerCountToDisk(newCount) {
-	var json = { "count" : newCount }; 
-	var json_string = JSON.stringify(json);
-	fs.writeFileSync('odometer.json', json_string);
-}

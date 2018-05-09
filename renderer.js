@@ -324,6 +324,13 @@ ipcRenderer.on('main-to-renderer', (event, arg) => {
 		npanel_reverse.innerHTML = "";
 	}
 	
+	if (displayJSON.error) {
+		npanel_serror.innerHTML = "Firmware Error";
+	}
+	else {
+		npanel_serror.innerHTML = "";
+	}
+	
 	npanel_state.innerHTML = "State: " + displayJSON.state;
 	
 	npanel_odo.innerHTML = "Odometer: " + displayJSON.odometerValue.toString() + " miles"

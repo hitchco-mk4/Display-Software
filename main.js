@@ -14,8 +14,8 @@ var last_left_blink_state = 0;
 var last_right_blink_state = 0;
 var previous_miles_this_trip = 0;
 var arduino_thread_ready = true;
-var backup_cam_on = true;
 
+var backup_cam_on = true;
 var making_window_change = false; 
 
 // Module to create native browser window.
@@ -33,11 +33,11 @@ const processConfig = {
 var hardware_process = fork('./arduino_reader.js', options=processConfig);
 
 function start_backup_camera() {
-	exec('mplayer -vf mirror -xy 600 -input file=/home/pi/Display-Software/mplayer.settings  tv://device=/dev/video0:width=300:height=220');
+	exec('mplayer -framedrop  -vf mirror -xy 600 -input file=/home/pi/Display-Software/mplayer.settings  tv://device=/dev/video0:width=300:height=220');
 }
 
 function stop_backup_camera(){
-	exec('killall MPlayer');
+	exec('killall mplayer');
 }
 
 function createWindow () {
@@ -68,26 +68,31 @@ function createWindow () {
 	})
 	
 	log_function("Starting Backup Camera Process");
+		
+	// start a process to make sure the true state of the cam window matches the one this software thinks it is
 	
 	start_backup_camera();
-	
-	// start a process to make sure the true state of the cam window matches the one this software thinks it is
 	
 	setInterval(function(){
 		if (making_window_change == false) {
 			var true_state;
-			if (get_current_window() == "MPlayer") {
+			
+			var current_window_name = get_current_window();
+			
+			if (current_window_name == "MPlayer") {
 				true_state = true;
 			}
-			else {
+			else if (current_window_name == "car-HUD") {
 				true_state = false;
 			}
+			
 			if (true_state != backup_cam_on) {
 				backup_cam_on = true_state;
 				log_function("Internal camera state corrected");
 			}
 		}
 	}, 1000);
+
 }
 
 function startWorker() {
@@ -123,10 +128,7 @@ app.on('window-all-closed', function () {
 	}
 })
 
-// Listen for async message from renderer process
-ipcMain.on('renderer-to-main', (event, arg) => {
-	
-});
+
 
 function precisionRound(number, precision) {
   var factor = Math.pow(10, precision);
@@ -150,7 +152,7 @@ function wait_for_window(window_name, on_pass, on_fail) {
 	
 	log_function("Waiting for window [" + window_name + "] to be on top");
 	
-	var maxcounts = 10;
+	var maxcounts = 30;
 	var count = 0; 
 	
 	var interval = setInterval(function(){
@@ -163,7 +165,7 @@ function wait_for_window(window_name, on_pass, on_fail) {
 			on_pass();
 		}
 		else {
-			log_function("Window [" + window_name + "] wasn't top, top window [" + result + "]");
+			log_function("Window [" + window_name + "] wasn't top, top window [" + result + "] Attempt [" + String(count) + "/" + String(maxcounts) + "]");
 		}
 		
 		count++;
@@ -172,72 +174,104 @@ function wait_for_window(window_name, on_pass, on_fail) {
 			clearInterval(interval); // stops running the command
 			on_fail();
 		}
-	},1000);	
+	}, 100);	
 }
 
-function window_change(wait_for, fail_function1, run_command, pass_function, fail_function2) {
-	wait_for_window(
-		wait_for, 
-		function() {
-			exec(run_command);
-			wait_for_window(
-				"car-HUD", 
-				function(){
-					pass_function();
-				},
-				function(){
-					fail_function2();
-				}
-			);
-		},
-		function(){
-			fail_function1();
-		}
-	);
+function window_change(switch_from, switch_to, no_switch_from, switch_function, switch_to_shown, no_switch_to) {
+	
+	// switches the top window in the os from `switch_from` to `switch_to` using `switch_function`.
+	// if `switch_from` isn't the top window when this is called, `no_switch_to` will be executed.
+	// when `switch_to` becomes the top window, `switch_to_shown` will be executed.
+	// if the function times out, and `switch_to` isn't shown `no_switch_to` will be executed.
+	// `making_window_change` is used to make sure that only one process can be in here at a time. 
+	
+	if (making_window_change == false){
+		making_window_change = true;
+		wait_for_window(
+			switch_from, 
+			function() {
+				switch_function();
+				wait_for_window(
+					switch_to, 
+					function(){
+						switch_to_shown();
+						making_window_change = false;
+					},
+					function(){
+						no_switch_to();
+						making_window_change = false;
+					}
+				);
+			},
+			function(){
+				no_switch_from();
+				making_window_change = false;
+			}
+		);
+	}
+	else {
+		log_function("Only one change at a time");
+	}
 }
 
 function hide_backup_camera() {
 	
 	log_function("-- Trying to hide MPlayer --");
 	
-	window_change("MPlayer", 
+	window_change(
 	
-	function(){
-		log_function("MPlayer couldn't be hidden because it was never on top");
-	},
-	
-	'xdotool windowminimize $(xdotool search --class "MPlayer")', 
-	
-	function() {
-		log_function("MPlayer Hidden");
-	},
-	
-	function() {
-		log_function("Couldn't hide MPlayer, manually killing process");
-		stop_backup_camera();
-	});
+		"MPlayer", 
+		
+		"car-HUD",
+		
+		function(){
+			log_function("MPlayer couldn't be hidden because it was never on top");
+		},
+		
+		function(){
+			log_function("Minimizing MPlayer window");
+			exec('xdotool windowminimize $(xdotool search --class "MPlayer")');
+		}, 
+		
+		function() {
+			log_function("MPlayer Hidden");
+		},
+		
+		function() {
+			log_function("Couldn't hide MPlayer, manually killing process");
+			stop_backup_camera();
+		}
+	);
 }
 
 function show_backup_camera() {
 	
 	log_function("-- Trying to show MPlayer --");
 	
-	window_change("car-HUD", 
+	window_change(
 	
-	function(){
-		log_function("MPlayer couldn't be shown because car-HUD was never on top");
-	},
+		"car-HUD", 
 	
-	'xdotool windowactivate $(xdotool search --class "MPlayer")', 
+		"MPlayer",
 	
-	function() {
-		log_function("MPlayer Shown");
-	},
-	
-	function() {
-		log_function("Couldn't show MPlayer, restarting process");
-		start_backup_camera();
-	});
+		function(){
+			log_function("MPlayer couldn't be shown because car-HUD was never on top");
+		},
+		
+		function() {
+			log_function("Showing MPlayer window");
+			exec('xdotool windowactivate $(xdotool search --class "MPlayer")');
+		}, 
+		
+		function() {
+			log_function("MPlayer Activated");
+		},
+		
+		function() {
+			log_function("Couldn't show MPlayer, restarting process");
+			start_backup_camera();
+		}
+	);
 }
 
 function getOdometerCountFromDisk() {
@@ -372,7 +406,7 @@ hardware_process.on('message', (m) => {
 	else {
 		if (backup_cam_on == true) {
 			hide_backup_camera();
-			backup_cam_on = false;
+			backup_cam_on = false; 
 		}
 	}
 
@@ -383,3 +417,7 @@ hardware_process.on('message', (m) => {
 	arduino_thread_ready = true;
 });
 
+// Listen for async message from renderer process
+ipcMain.on('renderer-to-main', (event, arg) => {
+	
+});

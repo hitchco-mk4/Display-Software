@@ -3,13 +3,10 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>car-HUD</title>
+		<link id="pagestyle" rel="stylesheet" type="text/css" href="style_day.css">
 	</head>
 	
 	<style>		
-	
-		body {
-			background-color: powderblue;
-		}
 	
 		.eqi-container {
 			display: flex;
@@ -20,16 +17,25 @@
 		
 		.bar_label {
 			padding-top: 2%;
-			size: 3;
-			transform: rotate(40deg);
+			line-height: .1;
 		}
 		
 		.big_bar_div {
-			width: 110px;
+			width: 85px;
 		}
 		
+		.text{
+			font-family: "Arial";
+			font-size: 12pt;
+		}
+		
+		.mphrpm {
+			font-size: 15pt;
+			font-style: italic;
+		}	
+		
 		.small_bar_div {
-			width: 96px;
+			width: 85px;
 		}
 		
 		#notifications_panel {
@@ -45,9 +51,8 @@
 		
 		#bottom {
 			/* align-items: start; */ /* aligns the vertical tops of the divs */
-			height: 180px;
+			height: 190px;
 			padding-top: 10px;
-			/* padding-right: 30%; */
 		}
 		
 		#mph_doughnut {
@@ -65,7 +70,6 @@
 			z-index: 1;
 			border-style: solid;
 			border-width: 100px 100px 0 0;
-			border-color: #007bff transparent transparent transparent;
 		}
 	
 		#top-right-triangle {
@@ -75,7 +79,6 @@
 			z-index: 1;
 			border-style: solid;
 			border-width: 0 100px 100px 0;
-			border-color: transparent #007bff transparent transparent;
 		}
 
 	</style>
@@ -89,20 +92,20 @@
 		
 			<div>
 				<canvas id="mph_doughnut"></canvas>
-				<p>MPH</p>
+				<p class="mphrpm text">MPH</p>
 			</div>
 			
 			<div>
 				<canvas id="rpm_doughnut"></canvas>
-				<p>RPM</p>
+				<p class="mphrpm text">RPM</p>
 			</div>
 			
 			<div id="notifications_panel">
-				<div id = "npanel_reverse"></div>
-				<div id = "npanel_ebreak"></div>
-				<div id = "npanel_serror"></div>
-				<div id = "npanel_state"></div>
-				<div id = "npanel_odo"></div>
+				<div class="text" id = "npanel_reverse"></div>
+				<div class="text" id = "npanel_ebreak"></div>
+				<div class="text" id = "npanel_serror"></div>
+				<div class="text" id = "npanel_state"></div>
+				<div class="text" id = "npanel_odo"></div>
 			</div>
 		
 		</div>
@@ -111,42 +114,47 @@
 						
 			<div class="big_bar_div">
 				<canvas id="fuel_bar" class="bar_chart"></canvas>
-				<div class="bar_label">Fuel</div>
+				<div class="bar_label text">Fuel</div>
 			</div>
 				
 			<div class="small_bar_div">
 				<canvas id="vbat_bar" class="bar_chart"></canvas>
-				<div class="bar_label">Voltage</div>
+				<div class="bar_label text">Voltage</div>
 			</div>
 			
 			<div class="small_bar_div">
 				<canvas id="batc_bar" class="bar_chart"></canvas>
-				<div class="bar_label">Current</div>
+				<div class="bar_label text">Current</div>
 			</div>
 			
 			<div class="small_bar_div">
 				<canvas id="ect_bar" class="bar_chart"></canvas>
-				<div class="bar_label">Engine Temp</div>
+				<div class="bar_label text">Engine<p>Temp</p></div>
 			</div>
 			
 			<div class="small_bar_div">
 				<canvas id="act_bar" class="bar_chart"></canvas>
-				<div class="bar_label">Air Temp</div>
+				<div class="bar_label text">Air<p>Temp</p></div>
 			</div>
 			
 			<div class="small_bar_div">
 				<canvas id="oilp_bar" class="bar_chart"></canvas>
-				<div class="bar_label">Oil Pressure</div>
+				<div class="bar_label text">Oil<p>Pressure</p></div>
+			</div>
+			
+			<div class="small_bar_div">
+				<canvas id="oill_bar" class="bar_chart"></canvas>
+				<div class="bar_label text">Oil<p>Level</p></div>
 			</div>
 			
 			<div class="small_bar_div">
 				<canvas id="egol_bar" class="bar_chart"></canvas>
-				<div class="bar_label">EGOL</div>
+				<div class="bar_label text">EGOL</div>
 			</div>
 			
 			<div class="small_bar_div">
 				<canvas id="egor_bar" class="bar_chart"></canvas>
-				<div class="bar_label">EGOR</div>
+				<div class="bar_label text">EGOR</div>
 			</div>
 			
 		</div>

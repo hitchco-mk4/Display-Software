@@ -10,34 +10,59 @@ const {ipcMain} = require('electron');
 var fs = require('fs');
 
 var initial_odometer_count;
-var last_left_blink_state = 0;
-var last_right_blink_state = 0;
 var previous_miles_this_trip = 0;
+
 var arduino_thread_ready = true;
 
 var backup_cam_on = true;
 var making_window_change = false; 
 
-// Module to create native browser window.
-const BrowserWindow = electron.BrowserWindow;
+var last_print_time = 0;
 
-
-function log_function (message) {
-	console.log("main.js - " + String(message));
-}
+const BrowserWindow = electron.BrowserWindow; // Module to create native browser window.
 
 const processConfig = {
 	silent: false // setting to true will disable arduino debug info to log
 }
 
-var hardware_process = fork('./arduino_reader.js', options=processConfig);
+function run_command_get_output(command) {
+	return exec_sync(command).toString().trim();
+}
+
+function log_function(message) {
+	// wraps log messages so messages from each file can be distinguished
+	
+	console.log("main.js - " + String(message));
+}
 
 function start_backup_camera() {
+	// launches the mplayer process that streams the backup camera
+	
 	exec('mplayer -framedrop  -vf mirror -xy 600 -input file=/home/pi/Display-Software/mplayer.settings  tv://device=/dev/video0:width=300:height=220');
 }
 
 function stop_backup_camera(){
+	// force-kills the backup camera process
+	
 	exec('killall mplayer');
+}
+
+function is_mplayer_running() {
+	// checks to see if mplayer is running, pgrep returns an error pipe if the name isn't found
+	
+	var output = false;
+	
+	try {
+		if (run_command_get_output('pgrep -x "mplayer"') > 0) {
+			output = true;
+		}
+	}
+	
+	catch(error){
+		// do nothing, command failed so no mplayer
+	}
+	
+	return output;
 }
 
 function createWindow () {
@@ -57,7 +82,7 @@ function createWindow () {
 	mainWindow.setFullScreen(true); // make the app full screen
 
 	//Open the DevTools.
-	//mainWindow.webContents.openDevTools() // uncomment this line to have the devtools window open by default
+	mainWindow.webContents.openDevTools() // uncomment this line to have the devtools window open by default
 
 	// Emitted when the window is closed.
 	mainWindow.on('closed', function () {
@@ -73,7 +98,7 @@ function createWindow () {
 	
 	start_backup_camera();
 	
-	setInterval(function(){
+	setInterval(function(){ // this interval makes sure the camera is running correctly
 		if (making_window_change == false) {
 			var true_state;
 			
@@ -91,8 +116,17 @@ function createWindow () {
 				log_function("Internal camera state corrected");
 			}
 		}
+		
+		// the following commented block is a design decision. MPlayer streaming from a USB camera is unstable on a Raspberry Pi and often crashes. However, when it restarts, the window briefly pops over the UI, obscuring it from the driver. So, MPlayer should only be re-started when the backup camera is on, but it may take a long time to do this is MPlayer has previously crashed. If the operator is willing to have the UI obscured for a fast-acting backup camera, the following block should be uncomment.
+		
+		/*
+		if (is_mplayer_running() == false) {
+			log_function("Mplayer has crashed! Restarting");
+			start_backup_camera();
+		}
+		*/
+		
 	}, 1000);
-
 }
 
 function startWorker() {
@@ -111,6 +145,8 @@ function global_odo_load() {
 	initial_odometer_count = getOdometerCountFromDisk(); // read in the previous odometer count from disk
 }
 
+var hardware_process = fork('./arduino_reader.js', options=processConfig);
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -128,8 +164,6 @@ app.on('window-all-closed', function () {
 	}
 })
 
-
-
 function precisionRound(number, precision) {
   var factor = Math.pow(10, precision);
   return Math.round(number * factor) / factor;
@@ -145,7 +179,15 @@ function intToBool(i) {
 }
 
 function get_current_window() {
-	return exec_sync('xdotool getactivewindow getwindowname').toString().trim();
+	
+	while (true) {
+		try {
+			return run_command_get_output('xdotool getactivewindow getwindowname');
+		}
+		catch(error){
+			log_function("Get current window has failed! Retrying");
+		}
+	}
 }
 
 function wait_for_window(window_name, on_pass, on_fail) {
@@ -304,31 +346,42 @@ hardware_process.on('message', (m) => {
 		2. Convert the data from the Arduino to the data to be displayed
 		3. Store the odometer count to disk
 		4. Fill the the display object
-		5. Send the display object to the renderer
+		5. Print display object 
+		6. Send the display object to the renderer
+		7. Handle potential backup camera problems
 	*/
 	
 	var report_json = JSON.parse(m);
-	
-	//log_function("Got JSON from arduino_reader: ");
-	//log_function(JSON.stringify(report_json));
-	
-	//log_function("Re-mapping arduino JSON for renderer");
-	
+		
 	var miles_this_trip = report_json.f7;
 	
 	if (miles_this_trip > 0) {
 		var odometer_count = initial_odometer_count + miles_this_trip;
-		if (isNaN(odometer_count)) { // for some reason, newRotations is sometimes null, this prevents problems with these
-			odometer_count = 0;
-		}
 	}
 	
+	if (isNaN(odometer_count)) { // for some reason, newRotations is sometimes null, this prevents problems with these
+		odometer_count = 0;
+	}
+	else if (odometer_count == null) {
+		odometer_count = 0;
+	}
+	else if (odometer_count === undefined){
+		odometer_count = 0;
+	}
+	else if (odometer_count == undefined){
+		odometer_count = 0;
+	}
+	else if (typeof odometer_count == "undefined") {
+		odometer_count = 0;
+	}
+
 	setOdometerCountToDisk(odometer_count); // commit this to disk often
 	
 	var rpm = precisionRound(report_json.f0, 0);
 	var mph = precisionRound(report_json.f1, 0);
 	var vbat = precisionRound(report_json.f2, 1);
 	var oilp = precisionRound(report_json.f3, 0);
+	var oill = precisionRound(report_json.f9, 0);
 	var fuel = precisionRound(report_json.f4, 0);
 	var egol = precisionRound(report_json.f5, 2);
 	var egor = precisionRound(report_json.f6, 2);
@@ -345,6 +398,16 @@ hardware_process.on('message', (m) => {
 	var state_number_to_name = {0: "Combo", 1: "Auto Start", 2: "Running", 3: "Shutoff", 4: "Limbo"};
 	var state = report_json.i2;
 	var state_text = state_number_to_name[state]; 
+	
+	var clutch = intToBool(report_json.b5);
+	
+	var night_mode = false;
+	
+	if (report_json.i3 < 600) {
+		night_mode = true;
+	}
+	
+	var lite = intToBool(report_json.b6);
 	
 	// if the car us not running, these values will not be accurate, so set them to zero
 	if (state != 2) {
@@ -365,7 +428,8 @@ hardware_process.on('message', (m) => {
 		VBAT: vbat,							
 		ECT: ect,							
 		ACT: act,							
-		OILP: oilp,			
+		OILP: oilp,	
+		OILL: oill,
 		FUEL: fuel,	
 		BATC: batc,							
 		EGOL: egol,							
@@ -376,6 +440,8 @@ hardware_process.on('message', (m) => {
 		LEFT: left,
 		RIGHT: right,
 		
+		night: night_mode, 
+		
 		shutdown : shut_off_pi,				// to show the pi is going down
 		error: error,						// alarm image
 		state: state_text,
@@ -383,6 +449,15 @@ hardware_process.on('message', (m) => {
 		
 	// send the remapped data to the renderer
 	mainWindow.webContents.send('main-to-renderer', JSON.stringify(displayJSON));
+	
+	// print the data if enough time has gone by
+	var now = new Date().getTime();
+	
+	if (now - last_print_time > 1000) { // every 5 seconds
+		log_function(JSON.stringify(displayJSON, null, 2));
+		last_print_time = now;
+	}
+	
 	
 	if (shut_off_pi) {
 		
@@ -413,7 +488,7 @@ hardware_process.on('message', (m) => {
 	if (error) {
 		log_function("Arduino Error");
 	}
-	
+		
 	arduino_thread_ready = true;
 });
 

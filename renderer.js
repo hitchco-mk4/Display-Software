@@ -5,14 +5,23 @@
 const {ipcRenderer} = require('electron');
 
 var Chart = require('chart.js')
-var chartsjsPluginDataLabels = require("chartsjs-plugin-data-labels"); 
+// var chartsjsPluginDataLabels = require("chartsjs-plugin-data-labels"); 
 
 var mph_max = 200;
 var rpm_max = 8000; 
 
+var last_night_state = false;
 
 function log_function (message) {
 	console.log("renderer.js - " + String(message));
+}
+
+function swapStyleSheet(sheet) {
+    var current = document.getElementById("pagestyle").getAttribute("href");
+	
+	if (current != sheet){
+		document.getElementById("pagestyle").setAttribute("href", sheet);
+	}
 }
 
 /*
@@ -30,8 +39,8 @@ var doughnut_options = {
 		elements: {
 			center: {
 				text: 'Value',
-				color: '#36A2EB', //Default black
-				fontStyle: 'Helvetica', //Default Arial
+				color: '#2B0000', //Default black
+				fontStyle: 'hoge,impact', //Default Arial
 				sidePadding: 15 //Default 20 (as a percentage)
 			}
 		},
@@ -50,7 +59,7 @@ var mph_doughnut_chart = new Chart(document.getElementById(mph_doughnut_id), {
 				datasets: [
 					{
 						data: [0, mph_max],
-						backgroundColor: ["#FF6384", "#e6e6e6"],
+						backgroundColor: ["#D94C19", "#e6e6e6"],
 					}
 				]
 		},
@@ -69,7 +78,7 @@ var rpm_doughnut_chart = new Chart(document.getElementById(rpm_doughnut_id), {
 				datasets: [
 					{
 						data: [0, rpm_max],
-						backgroundColor: ["#5063FF", "#e6e6e6"],
+						backgroundColor: ["#AA393A", "#e6e6e6"],
 					}
 				]
 		},
@@ -82,17 +91,19 @@ doughnut_id_to_object[rpm_doughnut_id] = rpm_doughnut_chart;
 /*
 	bar graph settings
 */
-function get_bar(element, min, max, y_axis_labels) {
+
+function get_bar(element, min, max, y_axis_labels, red, green, blue) {
 	
 	var bar_data = {
     datasets: [{
-        backgroundColor: ['rgba(255, 99, 132, 0.2)'],
-        borderColor: ['rgba(255,99,132,1)'],
+        backgroundColor: ['rgba(' + red.toString() + ',' + green.toString() + ',' + blue.toString() + ', 0.2)'],
+        borderColor: ['rgba(' + red.toString() + ',' + green.toString() + ',' + blue.toString() + ', 1)'],
         borderWidth: 1,
         data: [0],
 		datalabels: {
-			align: 'start',
-			anchor: 'start'
+			// align: 'start',
+			// anchor: 'start'
+			display: false
 		}
       }]
 	};
@@ -116,7 +127,7 @@ function get_bar(element, min, max, y_axis_labels) {
 		scales: {
 			xAxes: [{
 						gridLines: {
-							display: true,
+							display: false,
 							drawBorder: true
 						},
 						categoryPercentage: 1.0,
@@ -124,13 +135,13 @@ function get_bar(element, min, max, y_axis_labels) {
 					}],
 			yAxes: [{
 						gridLines: {
-							display: false,
+							display: true,
 							drawBorder: false
 						},
 						ticks: {
 							min:min,
 							max:max,
-							fontSize: fontSize // will hide the y axis labels
+							fontSize: fontSize
 						}
 					}]
 		},
@@ -143,9 +154,7 @@ function get_bar(element, min, max, y_axis_labels) {
                 bottom: 0
             }
         },
-
-		scaleShowLabels : false,
-		scaleFontSize: 0,
+		
 		animation: false,
 	}
 	
@@ -156,7 +165,7 @@ function get_bar(element, min, max, y_axis_labels) {
 	});
 }
 
-var bar_ids = ["fuel_bar", "vbat_bar", "batc_bar", "ect_bar", "act_bar", "oilp_bar", "egol_bar", "egor_bar"];
+var bar_ids = ["fuel_bar", "vbat_bar", "batc_bar", "ect_bar", "act_bar", "oilp_bar", "oill_bar", "egol_bar", "egor_bar"];
 var bar_id_to_object = {};
 
 
@@ -166,42 +175,47 @@ var bar_id_to_object = {};
 
 var fuel_bar_element_name = bar_ids[0];
 var fuel_bar_element = document.getElementById(fuel_bar_element_name).getContext("2d");
-var fuel_bar_chart = get_bar(fuel_bar_element, 0, 100, true);
+var fuel_bar_chart = get_bar(fuel_bar_element, 0, 100, true, 255, 137, 241);
 bar_id_to_object[fuel_bar_element_name] = fuel_bar_chart;
 
 var vbat_bar_element_name = bar_ids[1];
 var vbat_bar_element = document.getElementById(vbat_bar_element_name).getContext("2d");
-var vbat_bar_chart = get_bar(vbat_bar_element, 0, 20, true);
+var vbat_bar_chart = get_bar(vbat_bar_element, 0, 20, true, 82, 255, 30);
 bar_id_to_object[vbat_bar_element_name] = vbat_bar_chart;
 
 var batc_bar_element_name = bar_ids[2]; 
 var batc_bar_element = document.getElementById(batc_bar_element_name).getContext("2d");
-var batc_bar_chart = get_bar(batc_bar_element, 0, 8, true);
+var batc_bar_chart = get_bar(batc_bar_element, 0, 8, true, 41, 181, 0);
 bar_id_to_object[batc_bar_element_name] = batc_bar_chart;
 
 var ect_bar_element_name = bar_ids[3];
 var ect_bar_element = document.getElementById(ect_bar_element_name).getContext("2d");
-var ect_bar_chart = get_bar(ect_bar_element, 0, 300, true);
+var ect_bar_chart = get_bar(ect_bar_element, 0, 300, true, 68, 152, 255);
 bar_id_to_object[ect_bar_element_name] = ect_bar_chart;
 
 var act_bar_element_name = bar_ids[4];
 var act_bar_element = document.getElementById(act_bar_element_name).getContext("2d");
-var act_bar_chart = get_bar(act_bar_element, 0, 300, true);
+var act_bar_chart = get_bar(act_bar_element, 0, 300, true, 0, 81, 181);
 bar_id_to_object[act_bar_element_name] = act_bar_chart;
 
 var oilp_bar_element_name = bar_ids[5];
 var oilp_bar_element = document.getElementById(oilp_bar_element_name).getContext("2d");
-var oilp_bar_chart = get_bar(oilp_bar_element, 0, 100, true);
+var oilp_bar_chart = get_bar(oilp_bar_element, 0, 100, true, 255, 241, 50);
 bar_id_to_object[oilp_bar_element_name] = oilp_bar_chart;
 
-var egol_bar_element_name = bar_ids[6];
+var oill_bar_element_name = bar_ids[6];
+var oill_bar_element = document.getElementById(oill_bar_element_name).getContext("2d");
+var oill_bar_chart = get_bar(oill_bar_element, 0, 100, true, 183, 171, 0);
+bar_id_to_object[oill_bar_element_name] = oill_bar_chart;
+
+var egol_bar_element_name = bar_ids[7];
 var egol_bar_element = document.getElementById(egol_bar_element_name).getContext("2d");
-var egol_bar_chart = get_bar(egol_bar_element, 0, 2, true);
+var egol_bar_chart = get_bar(egol_bar_element, 0, 2, true, 255, 99, 79);
 bar_id_to_object[egol_bar_element_name] = egol_bar_chart;
 
-var egor_bar_element_name = bar_ids[7];
+var egor_bar_element_name = bar_ids[8];
 var egor_bar_element = document.getElementById(egor_bar_element_name).getContext("2d");
-var egor_bar_chart = get_bar(egor_bar_element, 0, 2, true);
+var egor_bar_chart = get_bar(egor_bar_element, 0, 2, true, 160, 18, 0);
 bar_id_to_object[egor_bar_element_name] = egor_bar_chart;
 
 var npanel_reverse = document.getElementById("npanel_reverse");
@@ -211,6 +225,8 @@ var npanel_odo = document.getElementById("npanel_odo");
 
 var left_blinker_corner = document.getElementById("top-left-triangle");
 var right_blinker_corner = document.getElementById("top-right-triangle");
+
+var style_sheet = document.getElementById("css");
 
 
 /*
@@ -227,7 +243,7 @@ var right_blinker_corner = document.getElementById("top-right-triangle");
 
       //Get options from the center object in options
       var centerConfig = chart.config.options.elements.center;
-      var fontStyle = centerConfig.fontStyle || 'Arial';
+	  var fontStyle = centerConfig.fontStyle;
       var txt = centerConfig.text;
       var color = centerConfig.color || '#000';
       var sidePadding = centerConfig.sidePadding || 20;
@@ -242,7 +258,7 @@ var right_blinker_corner = document.getElementById("top-right-triangle");
 
       // Find out how much the font can grow in width.
       var widthRatio = elementWidth / stringWidth;
-      var newFontSize = Math.floor(30 * widthRatio);
+      var newFontSize = Math.floor(50 * widthRatio);
       var elementHeight = (chart.innerRadius * 2);
 
       // Pick a new font size so it will not be larger than the height of label.
@@ -254,7 +270,10 @@ var right_blinker_corner = document.getElementById("top-right-triangle");
       var centerX = ((chart.chartArea.left + chart.chartArea.right) / 2);
       //var centerY = ((chart.chartArea.top + chart.chartArea.bottom) / 2); // puts it in the middle
       var centerY = chart.chartArea.bottom - ((chart.chartArea.top + chart.chartArea.bottom) / 5); // puts it slightly above the bottom
-      ctx.font = fontSizeToUse+"px " + fontStyle;
+      ctx.font = "italic " + fontSizeToUse + "px " + fontStyle + ", Helvetica Neue, sans-serif";
+	  
+	  log_function(ctx.font);
+	  
       ctx.fillStyle = color;
 
       //Draw text in center
@@ -281,7 +300,7 @@ ipcRenderer.on('main-to-renderer', (event, arg) => {
 	// set new data values in the chart objects
 	mph_doughnut_chart.data.datasets[0].data[0] = displayJSON.MPH;
 	mph_doughnut_chart.data.datasets[0].data[1] = mph_max - displayJSON.MPH;
-	mph_doughnut_chart.options.elements.center.text = pad(displayJSON.MPH, 2).toString();
+	mph_doughnut_chart.options.elements.center.text = pad(displayJSON.MPH, 3).toString();
 	
 	rpm_doughnut_chart.data.datasets[0].data[0] = displayJSON.RPM;
 	rpm_doughnut_chart.data.datasets[0].data[1] = rpm_max - displayJSON.RPM;
@@ -293,6 +312,7 @@ ipcRenderer.on('main-to-renderer', (event, arg) => {
 	ect_bar_chart.data.datasets[0].data[0] = displayJSON.ECT;
 	act_bar_chart.data.datasets[0].data[0] = displayJSON.ACT;
 	oilp_bar_chart.data.datasets[0].data[0] = displayJSON.OILP;
+	oill_bar_chart.data.datasets[0].data[0] = displayJSON.OILL;
 	
 	egol_bar_chart.data.datasets[0].data[0] = displayJSON.EGOL;
 	egor_bar_chart.data.datasets[0].data[0] = displayJSON.EGOR;
@@ -349,6 +369,20 @@ ipcRenderer.on('main-to-renderer', (event, arg) => {
 	}
 	else {
 		right_blinker_corner.style.display = "none";
+	}
+	
+	if (last_night_state != displayJSON.night) {	
+		if (displayJSON.night) {
+			swapStyleSheet("style_night.css");
+			mph_doughnut_chart.options.elements.center.color = '#EEFFFF'; //Default black
+			rpm_doughnut_chart.options.elements.center.color = '#EEFFFF'; //Default black
+		}
+		else {
+			swapStyleSheet("style_day.css");
+			mph_doughnut_chart.options.elements.center.color = '#2B0000'; //Default black
+			rpm_doughnut_chart.options.elements.center.color = '#2B0000'; //Default black
+		}
+		last_night_state = displayJSON.night;
 	}
 	
 	// Reply on async message from renderer process

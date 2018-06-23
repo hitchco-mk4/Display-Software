@@ -1,3 +1,5 @@
+/* style the elements in this file for color and font etc here for day mode */
+
 body {
 	background: -webkit-gradient(linear, left top, left bottom, from(#000000), to(#505050)) fixed;
 }

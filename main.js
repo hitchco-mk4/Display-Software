@@ -28,15 +28,16 @@ const processConfig = {
 
 var hardware_process = fork('./arduino_reader.js', options=processConfig);
 
-
-function run_command_get_output(command) {
-	return exec_sync(command).toString().trim();
-}
-
 function log_function(message) {
 	// wraps log messages so messages from each file can be distinguished
 	
 	console.log("main.js - " + String(message));
+}
+
+function run_command_get_output(command) {
+	// runs a command line command and returns it's output, can raise errors
+	
+	return exec_sync(command).toString().trim();
 }
 
 function start_backup_camera() {
@@ -134,6 +135,8 @@ function createWindow () {
 }
 
 function startWorker() {
+	// starts asking the arduino_reader for data
+	
 	log_function("starting arduino");
 	hardware_process.send("start");
 	setInterval(function() {
@@ -145,6 +148,8 @@ function startWorker() {
 }
 
 function global_odo_load() {
+	// loads the odometer count from disk into the global variable in this file
+	
 	initial_odometer_count = getOdometerCountFromDisk(); // read in the previous odometer count from disk
 }
 
@@ -168,11 +173,15 @@ app.on('window-all-closed', function () {
 })
 
 function precisionRound(number, precision) {
-  var factor = Math.pow(10, precision);
-  return Math.round(number * factor) / factor;
+	// a standard rounding function used a few times in this file
+
+	var factor = Math.pow(10, precision);
+	return Math.round(number * factor) / factor;
 }
 
 function intToBool(i) {
+	// convert an int representation of a bool to an actual bool 
+	
 	if (i == 1) {
 		return true;
 	}
@@ -182,6 +191,7 @@ function intToBool(i) {
 }
 
 function get_current_window() {
+	// return the name of the currently active X11 window in the OS
 	
 	while (true) {
 		try {
@@ -194,6 +204,7 @@ function get_current_window() {
 }
 
 function wait_for_window(window_name, on_pass, on_fail) {
+	// wait for a given window name to appear active, run on_pass if it happens, run on_fail if it doesn't
 	
 	log_function("Waiting for window [" + window_name + "] to be on top");
 	
@@ -223,7 +234,6 @@ function wait_for_window(window_name, on_pass, on_fail) {
 }
 
 function window_change(switch_from, switch_to, no_switch_from, switch_function, switch_to_shown, no_switch_to) {
-	
 	// switches the top window in the os from `switch_from` to `switch_to` using `switch_function`.
 	// if `switch_from` isn't the top window when this is called, `no_switch_to` will be executed.
 	// when `switch_to` becomes the top window, `switch_to_shown` will be executed.
@@ -260,6 +270,7 @@ function window_change(switch_from, switch_to, no_switch_from, switch_function, 
 }
 
 function hide_backup_camera() {
+	// hides the backup camera window, destroys the process if it doesn't go away
 	
 	log_function("-- Trying to hide MPlayer --");
 	
@@ -290,6 +301,7 @@ function hide_backup_camera() {
 }
 
 function show_backup_camera() {
+	// shows the backup camera window, destroys and then restarts the process if it doesn't show up
 	
 	log_function("-- Trying to show MPlayer --");
 	
@@ -320,6 +332,7 @@ function show_backup_camera() {
 }
 
 function getOdometerCountFromDisk() {
+	// read the odometer count stored in odometer.json from disk
 	
 	var count = 0; 
 	
@@ -336,13 +349,15 @@ function getOdometerCountFromDisk() {
 }
 
 function setOdometerCountToDisk(newCount) {
+	// set the odometer count stored in odometer.json on disk
+	
 	var json = { "count" : newCount }; 
 	var json_string = JSON.stringify(json);
 	fs.writeFileSync('odometer.json', json_string);
 }
 
-// Fires on new data from the arduino_reader process
 hardware_process.on('message', (m) => {	
+	// Fires on new data from the arduino_reader process
 
 	/*
 		1. Read in the data from the Arduino (stored in arg m)
@@ -501,7 +516,7 @@ hardware_process.on('message', (m) => {
 	
 });
 
-// Listen for async message from renderer process
 ipcMain.on('renderer-to-main', (event, arg) => {
-	
+	// Listen for async message from renderer process
+	// nothing here now
 });

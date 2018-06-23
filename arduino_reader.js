@@ -15,6 +15,8 @@ function log_function (message) {
 }
 
 function calc_crc(preCRC) {
+	// given an array of bytes, return the crc
+	
 	var CRC = 0;
 	for (var i in preCRC) {
 		CRC = (CRC + preCRC[i]) % 256; 
@@ -23,13 +25,15 @@ function calc_crc(preCRC) {
 }
 
 function write_drain(port, data, error) {
-  port.write(data, function () {
-    port.drain(error);
-  });
+	// write a data buffer to the port and then wait for it to drain
+	
+	port.write(data, function () {
+		port.drain(error);
+	});
 }
 
-// process a message from the parent process
 function process_message(m) {
+	// process a message from the parent process
 	
 	log_function("Got " + m + " from parent");
 	
@@ -68,7 +72,9 @@ function process_message(m) {
 			break;
 		
 		case "start":
-					
+			
+			// init the block to empty
+			
 			block_json.f0 = 0;
 			block_json.f1 = 0;
 			block_json.f2 = 0;
@@ -97,7 +103,6 @@ function process_message(m) {
 			
 			block_json.error = true;
 			
-
 			function new_serialport() {
 				
 				log_function("Starting Serial Port at [" + serialport_path + "] @ [" + serialport_baud.toString() + "] baud");

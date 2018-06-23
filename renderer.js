@@ -1,22 +1,24 @@
 // This file is required by the index.html file and will
 // be executed in the renderer process for that window.
-// All of the Node.js APIs are available in this process.
+// All of the Node.JS APIs are available in this process.
 
 const {ipcRenderer} = require('electron');
 
 var Chart = require('chart.js')
 // var chartsjsPluginDataLabels = require("chartsjs-plugin-data-labels"); 
 
-var mph_max = 200;
-var rpm_max = 8000; 
+var mph_max = 200; // the max MPH, gets passed into a doughnut config later
+var rpm_max = 8000; // the max RPM
 
 var last_night_state = false;
 
 function log_function (message) {
+	// do log filtering here.
 	console.log("renderer.js - " + String(message));
 }
 
 function swapStyleSheet(sheet) {
+	// swap the CSS sheet to a given sheet file name
     var current = document.getElementById("pagestyle").getAttribute("href");
 	
 	if (current != sheet){
@@ -25,12 +27,59 @@ function swapStyleSheet(sheet) {
 }
 
 /*
-	doughnut graph settings
+	doughnut graph chartjs settings
 */
 
-doughnut_ids = ["mph_doughnut", "rpm_doughnut"]; 
-var doughnut_id_to_object = {};
+// this plugin draws the text in the middle of the doughnut. If you want to modify the colors or text of the donghnut canvases, don't modify this block, use doughnut options
+ Chart.pluginService.register({
+  beforeDraw: function (chart) {
+    if (chart.config.options.elements.center) {
+      
+	  //Get ctx from string
+      var ctx = chart.chart.ctx;
 
+      //Get options from the center object in options
+      var centerConfig = chart.config.options.elements.center;
+	  var fontStyle = centerConfig.fontStyle;
+      var txt = centerConfig.text;
+      var color = centerConfig.color || '#000';
+      var sidePadding = centerConfig.sidePadding || 20;
+      var sidePaddingCalculated = (sidePadding/100) * (chart.innerRadius * 2)
+      //Start with a base font of 90px
+      ctx.font = "75px " + fontStyle;
+
+      //Get the width of the string and also the width of the element minus 10 to give it 5px side padding
+      var stringWidth = ctx.measureText(txt).width;
+	  var stringHeight = ctx.measureText(txt).height;
+      var elementWidth = (chart.innerRadius * 2) - sidePaddingCalculated;
+
+      // Find out how much the font can grow in width.
+      var widthRatio = elementWidth / stringWidth;
+      var newFontSize = Math.floor(50 * widthRatio);
+      var elementHeight = (chart.innerRadius * 2);
+
+      // Pick a new font size so it will not be larger than the height of label.
+      var fontSizeToUse = Math.min(newFontSize, elementHeight);
+
+      //Set font settings to draw it correctly.
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      var centerX = ((chart.chartArea.left + chart.chartArea.right) / 2);
+      //var centerY = ((chart.chartArea.top + chart.chartArea.bottom) / 2); // puts it in the middle
+      var centerY = chart.chartArea.bottom - ((chart.chartArea.top + chart.chartArea.bottom) / 5); // puts it slightly above the bottom
+      ctx.font = "italic " + fontSizeToUse + "px " + fontStyle + ", Helvetica Neue, sans-serif";
+	  
+	  log_function(ctx.font);
+	  
+      ctx.fillStyle = color;
+
+      //Draw text in center
+      ctx.fillText(txt, centerX, centerY);
+    }
+  }
+});
+
+// the chartjs options for our donghnut options
 var doughnut_options = {
 		rotation: -Math.PI,
 		cutoutPercentage: 75,
@@ -50,6 +99,9 @@ var doughnut_options = {
 		animation: false,
 };
 
+var doughnut_ids = ["mph_doughnut", "rpm_doughnut"]; // the id's for these two canvases in the DOM
+var doughnut_id_to_object = {}; // a lookup table that will be set
+
 var mph_doughnut_id = doughnut_ids[0];
 var mph_doughnut_chart = new Chart(document.getElementById(mph_doughnut_id), {
     
@@ -59,7 +111,7 @@ var mph_doughnut_chart = new Chart(document.getElementById(mph_doughnut_id), {
 				datasets: [
 					{
 						data: [0, mph_max],
-						backgroundColor: ["#D94C19", "#e6e6e6"],
+						backgroundColor: ["#D94C19", "#e6e6e6"], // the first one is the bar color, the second one is the negative space color
 					}
 				]
 		},
@@ -67,7 +119,7 @@ var mph_doughnut_chart = new Chart(document.getElementById(mph_doughnut_id), {
 	options: doughnut_options
 
 });
-doughnut_id_to_object[mph_doughnut_id] = mph_doughnut_chart;
+doughnut_id_to_object[mph_doughnut_id] = mph_doughnut_chart; // map the id name to the actual canvas object
 
 var rpm_doughnut_id = doughnut_ids[1];
 var rpm_doughnut_chart = new Chart(document.getElementById(rpm_doughnut_id), {
@@ -78,7 +130,7 @@ var rpm_doughnut_chart = new Chart(document.getElementById(rpm_doughnut_id), {
 				datasets: [
 					{
 						data: [0, rpm_max],
-						backgroundColor: ["#AA393A", "#e6e6e6"],
+						backgroundColor: ["#AA393A", "#e6e6e6"], // the first one is the bar color, the second one is the negative space color
 					}
 				]
 		},
@@ -86,29 +138,23 @@ var rpm_doughnut_chart = new Chart(document.getElementById(rpm_doughnut_id), {
 	options: doughnut_options
 
 });
-doughnut_id_to_object[rpm_doughnut_id] = rpm_doughnut_chart;
+doughnut_id_to_object[rpm_doughnut_id] = rpm_doughnut_chart; // map the id name to the actual canvas object
 
 /*
 	bar graph settings
 */
 
 function get_bar(element, min, max, y_axis_labels, red, green, blue) {
+	// returns a chart object with a pre-configured chartjs bar chart
 	
 	var bar_data = {
     datasets: [{
         backgroundColor: ['rgba(' + red.toString() + ',' + green.toString() + ',' + blue.toString() + ', 0.2)'],
         borderColor: ['rgba(' + red.toString() + ',' + green.toString() + ',' + blue.toString() + ', 1)'],
         borderWidth: 1,
-        data: [0],
-		datalabels: {
-			// align: 'start',
-			// anchor: 'start'
-			display: false
-		}
+        data: [0] // init to zero
       }]
 	};
-
-	// display: false
 	
 	var fontSize;
 	
@@ -166,11 +212,11 @@ function get_bar(element, min, max, y_axis_labels, red, green, blue) {
 }
 
 var bar_ids = ["fuel_bar", "vbat_bar", "batc_bar", "ect_bar", "act_bar", "oilp_bar", "oill_bar", "egol_bar", "egor_bar"];
-var bar_id_to_object = {};
+var bar_id_to_object = {}; // much like doughnut_id_to_object explained earlier
 
 
 /*
-	Map from names to usable vars
+	Create and configure the bar chart objects and then map them into variables in this file
 */
 
 var fuel_bar_element_name = bar_ids[0];
@@ -218,6 +264,10 @@ var egor_bar_element = document.getElementById(egor_bar_element_name).getContext
 var egor_bar_chart = get_bar(egor_bar_element, 0, 2, true, 160, 18, 0);
 bar_id_to_object[egor_bar_element_name] = egor_bar_chart;
 
+/*
+	map the notification panel into the javascript objects 
+*/
+
 var npanel_reverse = document.getElementById("npanel_reverse");
 var npanel_ebreak = document.getElementById("npanel_serror");
 var npanel_state = document.getElementById("npanel_state");
@@ -228,73 +278,17 @@ var npanel_light = document.getElementById("npanel_light");
 var left_blinker_corner = document.getElementById("top-left-triangle");
 var right_blinker_corner = document.getElementById("top-right-triangle");
 
-var style_sheet = document.getElementById("css");
-
-
-/*
-	configure chartjs
-*/
-
-// this draws the text in the middle of the doughnut
- Chart.pluginService.register({
-  beforeDraw: function (chart) {
-    if (chart.config.options.elements.center) {
-      
-	  //Get ctx from string
-      var ctx = chart.chart.ctx;
-
-      //Get options from the center object in options
-      var centerConfig = chart.config.options.elements.center;
-	  var fontStyle = centerConfig.fontStyle;
-      var txt = centerConfig.text;
-      var color = centerConfig.color || '#000';
-      var sidePadding = centerConfig.sidePadding || 20;
-      var sidePaddingCalculated = (sidePadding/100) * (chart.innerRadius * 2)
-      //Start with a base font of 90px
-      ctx.font = "75px " + fontStyle;
-
-      //Get the width of the string and also the width of the element minus 10 to give it 5px side padding
-      var stringWidth = ctx.measureText(txt).width;
-	  var stringHeight = ctx.measureText(txt).height;
-      var elementWidth = (chart.innerRadius * 2) - sidePaddingCalculated;
-
-      // Find out how much the font can grow in width.
-      var widthRatio = elementWidth / stringWidth;
-      var newFontSize = Math.floor(50 * widthRatio);
-      var elementHeight = (chart.innerRadius * 2);
-
-      // Pick a new font size so it will not be larger than the height of label.
-      var fontSizeToUse = Math.min(newFontSize, elementHeight);
-
-      //Set font settings to draw it correctly.
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      var centerX = ((chart.chartArea.left + chart.chartArea.right) / 2);
-      //var centerY = ((chart.chartArea.top + chart.chartArea.bottom) / 2); // puts it in the middle
-      var centerY = chart.chartArea.bottom - ((chart.chartArea.top + chart.chartArea.bottom) / 5); // puts it slightly above the bottom
-      ctx.font = "italic " + fontSizeToUse + "px " + fontStyle + ", Helvetica Neue, sans-serif";
-	  
-	  log_function(ctx.font);
-	  
-      ctx.fillStyle = color;
-
-      //Draw text in center
-      ctx.fillText(txt, centerX, centerY);
-    }
-  }
-});
-
 function pad(n, width, z) {
-  z = z || '0';
-  n = n + '';
-  return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+	// zero pad
+	z = z || '0';
+	n = n + '';
+	return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
 }
 
 /*
-	interface with parent process
+	interface with parent process, this is the meat of this file
 */
 
-// Listen for async-reply message from main process
 ipcRenderer.on('main-to-renderer', (event, arg) => {  
 	
 	var displayJSON = JSON.parse(arg);
@@ -331,7 +325,6 @@ ipcRenderer.on('main-to-renderer', (event, arg) => {
 	});
 	
 	// update the notification panel 
-	
 	var panel_items = 		[displayJSON.EBRK,		displayJSON.RVRS,	displayJSON.error,	displayJSON.LIGHT,	displayJSON.CLUTCH];
 	var panel_elements =	[npanel_ebreak,			npanel_reverse,		npanel_serror,		npanel_light,		npanel_clutch];	 
 	var panel_strings =		["Emergency Brake",		"Reverse",			"Firmware Error",	"Headlights On",	"Clutch Switch"];
@@ -352,7 +345,6 @@ ipcRenderer.on('main-to-renderer', (event, arg) => {
 	npanel_odo.innerHTML = displayJSON.odometerValue.toString() + " Miles"
 	
 	// update the blinkers
-	
 	if (displayJSON.LEFT) {
 		left_blinker_corner.style.display = "block";
 	}
@@ -367,6 +359,7 @@ ipcRenderer.on('main-to-renderer', (event, arg) => {
 		right_blinker_corner.style.display = "none";
 	}
 	
+	// handle a night mode event
 	if (last_night_state != displayJSON.night) {	
 		if (displayJSON.night) {
 			swapStyleSheet("style_night.css");

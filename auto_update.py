@@ -38,5 +38,3 @@ if __name__ == "__main__":
 	
 	if "Updating" in result:
 		blocking_run("npm install ---prefix /home/pi/Display-Software/")
-		
-	

@@ -1,0 +1,39 @@
+body {
+	background: -webkit-gradient(linear, left top, left bottom, from(#44818c), to(#BEF7EB)) fixed;
+}
+
+.text {
+	color: black;
+}
+
+.mphrpm {
+
+}
+
+.bar_label {
+
+}
+
+.big_bar_div {
+
+}
+
+.small_bar_div {
+
+}
+
+#notifications_panel {
+
+}
+
+#top-left-triangle {
+	border-color: #ff7200 transparent transparent transparent;
+}
+
+#top-right-triangle {
+	border-color: transparent #ff7200 transparent transparent;
+}
+
+#status {
+
+}

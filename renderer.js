@@ -180,7 +180,7 @@ bar_id_to_object[fuel_bar_element_name] = fuel_bar_chart;
 
 var vbat_bar_element_name = bar_ids[1];
 var vbat_bar_element = document.getElementById(vbat_bar_element_name).getContext("2d");
-var vbat_bar_chart = get_bar(vbat_bar_element, 0, 20, true, 82, 255, 30);
+var vbat_bar_chart = get_bar(vbat_bar_element, 0, 20, true, 82, 110, 30);
 bar_id_to_object[vbat_bar_element_name] = vbat_bar_chart;
 
 var batc_bar_element_name = bar_ids[2]; 
@@ -200,7 +200,7 @@ bar_id_to_object[act_bar_element_name] = act_bar_chart;
 
 var oilp_bar_element_name = bar_ids[5];
 var oilp_bar_element = document.getElementById(oilp_bar_element_name).getContext("2d");
-var oilp_bar_chart = get_bar(oilp_bar_element, 0, 100, true, 255, 241, 50);
+var oilp_bar_chart = get_bar(oilp_bar_element, 0, 100, true, 110, 100, 50);
 bar_id_to_object[oilp_bar_element_name] = oilp_bar_chart;
 
 var oill_bar_element_name = bar_ids[6];
@@ -222,6 +222,8 @@ var npanel_reverse = document.getElementById("npanel_reverse");
 var npanel_ebreak = document.getElementById("npanel_serror");
 var npanel_state = document.getElementById("npanel_state");
 var npanel_odo = document.getElementById("npanel_odo");
+var npanel_clutch = document.getElementById("npanel_clutch");
+var npanel_light = document.getElementById("npanel_light");
 
 var left_blinker_corner = document.getElementById("top-left-triangle");
 var right_blinker_corner = document.getElementById("top-right-triangle");
@@ -330,30 +332,24 @@ ipcRenderer.on('main-to-renderer', (event, arg) => {
 	
 	// update the notification panel 
 	
-	if (displayJSON.EBRK) {
-		npanel_ebreak.innerHTML = "Emergency Brake!";
-	}
-	else {
-		npanel_ebreak.innerHTML = "";
-	}
-	
-	if (displayJSON.RVRS) {
-		npanel_reverse.innerHTML = "Reverse!";
-	}
-	else {
-		npanel_reverse.innerHTML = "";
-	}
-	
-	if (displayJSON.error) {
-		npanel_serror.innerHTML = "Firmware Error";
-	}
-	else {
-		npanel_serror.innerHTML = "";
-	}
+	var panel_items = 		[displayJSON.EBRK,		displayJSON.RVRS,	displayJSON.error,	displayJSON.LIGHT,	displayJSON.CLUTCH];
+	var panel_elements =	[npanel_ebreak,			npanel_reverse,		npanel_serror,		npanel_light,		npanel_clutch];	 
+	var panel_strings =		["Emergency Brake",		"Reverse",			"Firmware Error",	"Headlights On",	"Clutch Switch"];
+		
+	var index = 0;
+	panel_items.forEach(function(element) {
+		if (panel_items[index]) {
+			panel_elements[index].innerHTML = panel_strings[index];
+		}
+		else {
+			panel_elements[index].innerHTML = "";
+		}
+		index++;
+	});
 	
 	npanel_state.innerHTML = "State: " + displayJSON.state;
 	
-	npanel_odo.innerHTML = "Odometer: " + displayJSON.odometerValue.toString() + " miles"
+	npanel_odo.innerHTML = displayJSON.odometerValue.toString() + " Miles"
 	
 	// update the blinkers
 	
@@ -374,13 +370,13 @@ ipcRenderer.on('main-to-renderer', (event, arg) => {
 	if (last_night_state != displayJSON.night) {	
 		if (displayJSON.night) {
 			swapStyleSheet("style_night.css");
-			mph_doughnut_chart.options.elements.center.color = '#EEFFFF'; //Default black
-			rpm_doughnut_chart.options.elements.center.color = '#EEFFFF'; //Default black
+			mph_doughnut_chart.options.elements.center.color = '#EEFFFF';
+			rpm_doughnut_chart.options.elements.center.color = '#EEFFFF';
 		}
 		else {
 			swapStyleSheet("style_day.css");
-			mph_doughnut_chart.options.elements.center.color = '#2B0000'; //Default black
-			rpm_doughnut_chart.options.elements.center.color = '#2B0000'; //Default black
+			mph_doughnut_chart.options.elements.center.color = '#2B0000';
+			rpm_doughnut_chart.options.elements.center.color = '#2B0000';
 		}
 		last_night_state = displayJSON.night;
 	}

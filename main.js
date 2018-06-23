@@ -19,11 +19,15 @@ var making_window_change = false;
 
 var last_print_time = 0;
 
+
 const BrowserWindow = electron.BrowserWindow; // Module to create native browser window.
 
 const processConfig = {
 	silent: false // setting to true will disable arduino debug info to log
 }
+
+var hardware_process = fork('./arduino_reader.js', options=processConfig);
+
 
 function run_command_get_output(command) {
 	return exec_sync(command).toString().trim();
@@ -82,7 +86,7 @@ function createWindow () {
 	mainWindow.setFullScreen(true); // make the app full screen
 
 	//Open the DevTools.
-	mainWindow.webContents.openDevTools() // uncomment this line to have the devtools window open by default
+	// mainWindow.webContents.openDevTools() // uncomment this line to have the devtools window open by default
 
 	// Emitted when the window is closed.
 	mainWindow.on('closed', function () {
@@ -134,7 +138,6 @@ function startWorker() {
 	hardware_process.send("start");
 	setInterval(function() {
 		if (arduino_thread_ready) { 
-			// log_function("Asking arduino_reader for data");
 			hardware_process.send("get");
 			arduino_thread_ready = false;
 		}
@@ -145,7 +148,7 @@ function global_odo_load() {
 	initial_odometer_count = getOdometerCountFromDisk(); // read in the previous odometer count from disk
 }
 
-var hardware_process = fork('./arduino_reader.js', options=processConfig);
+
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -395,6 +398,9 @@ hardware_process.on('message', (m) => {
 	var right = intToBool(report_json.b4);
 	var error = intToBool(report_json.error);
 	
+	var light = intToBool(report_json.b5);
+	var clutch = intToBool(report_json.b6);
+	
 	var state_number_to_name = {0: "Combo", 1: "Auto Start", 2: "Running", 3: "Shutoff", 4: "Limbo"};
 	var state = report_json.i2;
 	var state_text = state_number_to_name[state]; 
@@ -440,11 +446,14 @@ hardware_process.on('message', (m) => {
 		LEFT: left,
 		RIGHT: right,
 		
+		LIGHT: light,
+		CLUTCH: clutch,
+		
 		night: night_mode, 
 		
 		shutdown : shut_off_pi,				// to show the pi is going down
 		error: error,						// alarm image
-		state: state_text,
+		state: state_text
 	};
 		
 	// send the remapped data to the renderer
@@ -457,7 +466,6 @@ hardware_process.on('message', (m) => {
 		log_function(JSON.stringify(displayJSON, null, 2));
 		last_print_time = now;
 	}
-	
 	
 	if (shut_off_pi) {
 		
@@ -490,6 +498,7 @@ hardware_process.on('message', (m) => {
 	}
 		
 	arduino_thread_ready = true;
+	
 });
 
 // Listen for async message from renderer process

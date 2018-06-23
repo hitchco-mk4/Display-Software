@@ -1,5 +1,6 @@
 var SerialPort = require('serialport');
 var serialport_path = "/dev/serial0";
+var serialport_baud = 9600
 var port;
 
 var block_size = 64;
@@ -10,7 +11,7 @@ var arduino_ready = false;
 var serial_error_count = 0;
 
 function log_function (message) {
-	console.log("arduino.js - " + String(message));
+	// console.log("arduino.js - " + String(message));
 }
 
 function calc_crc(preCRC) {
@@ -30,7 +31,7 @@ function write_drain(port, data, error) {
 // process a message from the parent process
 function process_message(m) {
 	
-	// log_function("Got " + m + " from parent");
+	log_function("Got " + m + " from parent");
 	
 	switch(m) {
 		
@@ -42,18 +43,18 @@ function process_message(m) {
 				
 				write_drain(port, message_bytes, error);
 
-				// log_function("Sent message to arduino: [" + String(message_bytes) + "]");
+				log_function("Sent message to arduino: [" + String(message_bytes) + "]");
 				
 				serial_error_count = 0;
 				
 				arduino_ready = false;
 			}
 			else {
-				// log_function("Still waiting for last response, [" + String(serial_error_count) + "] waits");
+				log_function("Still waiting for last response, [" + String(serial_error_count) + "] waits");
 				serial_error_count++;
 				
 				if (serial_error_count > 5) {
-					// log_function("Big Problem");
+					log_function("Big Problem");
 					
 					clear_port();
 					
@@ -99,7 +100,7 @@ function process_message(m) {
 
 			function new_serialport() {
 				
-				log_function("Starting Serial Port at [" + serialport_path + "]");
+				log_function("Starting Serial Port at [" + serialport_path + "] @ [" + serialport_baud.toString() + "] baud");
 				try {
 					if (port.isOpen) {
 						port.close();
@@ -112,7 +113,7 @@ function process_message(m) {
 				
 				port = new SerialPort(serialport_path, {
 					  parser: SerialPort.parsers.byteLength(block_size),
-					  baudRate: 9600
+					  baudRate: serialport_baud
 				});	
 				
 				log_function("Serial Port Created [" + String(port) + "]");
@@ -129,7 +130,6 @@ function process_message(m) {
 			function clear_port(){
 				port.flush();
 				port.drain(error);
-				// new_serialport();
 			}
 			
 			// The open event is always emitted
@@ -147,7 +147,7 @@ function process_message(m) {
 			// fires whenever data arrives on the input buffer
 			port.on('data', function (data) {
 				
-				// log_function("Got a message back from the Arduino: [" + String(data) + "]");
+				log_function("Got a message back from the Arduino: [" + String(data) + "]");
 				
 				var incoming_crc = data.slice(63,64).readUInt8();
 				var buffer_as_numbers = [];
@@ -156,14 +156,14 @@ function process_message(m) {
 					buffer_as_numbers.push(data.slice(i,i+1).readUInt8());
 				}
 				
-				// log_function("Raw Bytes " + String(buffer_as_numbers));
+				log_function("Raw Bytes " + String(buffer_as_numbers));
 				
 				var calculated_crc = calc_crc(buffer_as_numbers);
 				
 				var crc_pass = incoming_crc == calculated_crc;
 				
-				// log_function("Incoming CRC " + String(incoming_crc));
-				// log_function("Calculated CRC " + String(calculated_crc));
+				log_function("Incoming CRC " + String(incoming_crc));
+				log_function("Calculated CRC " + String(calculated_crc));
 				
 				if (crc_pass) {
 					
@@ -219,7 +219,7 @@ function process_message(m) {
 					block_json.b5 = b5;
 					block_json.b6 = b6;
 					
-					// log_function("CRC Passed!");
+					log_function("CRC Passed!");
 					
 				}
 				

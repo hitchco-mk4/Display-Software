@@ -1,3 +1,5 @@
+_This repo is a part of the Hitchco MK4 project. You can read more about the project [here](http://www.esologic.com/hitchco-mk4/)._
+
 # Display-Software
 
 The software driving the display on the hitcho-mk4.
@@ -5,6 +7,7 @@ It is meant to be run on a [Raspberry Pi](https://www.raspberrypi.org/) embedded
 
 ## Software Organization:
 
+![software data flow](https://user-images.githubusercontent.com/3516293/39070220-7587746e-44b0-11e8-97f2-8d20e8ba16bc.png)
 
 ## Quick installation and configuration:
 

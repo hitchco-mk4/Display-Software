@@ -466,8 +466,8 @@ hardware_process.on('message', (m) => {
 		
 		night: night_mode, 
 		
-		shutdown : shut_off_pi,				// to show the pi is going down
-		error: error,						// alarm image
+		shutdown : shut_off_pi,
+		error: error,
 		state: state_text
 	};
 		

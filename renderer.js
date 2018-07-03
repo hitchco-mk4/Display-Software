@@ -221,7 +221,7 @@ var bar_id_to_object = {}; // much like doughnut_id_to_object explained earlier
 
 var fuel_bar_element_name = bar_ids[0];
 var fuel_bar_element = document.getElementById(fuel_bar_element_name).getContext("2d");
-var fuel_bar_chart = get_bar(fuel_bar_element, 0, 100, true, 255, 137, 241);
+var fuel_bar_chart = get_bar(fuel_bar_element, 0, 100, true, 174, 0, 255);
 bar_id_to_object[fuel_bar_element_name] = fuel_bar_chart;
 
 var vbat_bar_element_name = bar_ids[1];

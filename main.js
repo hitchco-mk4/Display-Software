@@ -461,7 +461,7 @@ hardware_process.on('message', (m) => {
 		LEFT: left,
 		RIGHT: right,
 		
-		LIGHT: light,
+		LIGHT: false,
 		CLUTCH: clutch,
 		
 		night: night_mode, 

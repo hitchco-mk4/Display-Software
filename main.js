@@ -43,7 +43,7 @@ function run_command_get_output(command) {
 function start_backup_camera() {
 	// launches the mplayer process that streams the backup camera
 	
-	exec('mplayer -framedrop  -vf mirror -xy 600 -input file=/home/pi/Display-Software/mplayer.settings  tv://device=/dev/video0:width=300:height=220');
+	exec('mplayer -framedrop  -vf flip mirror -xy 600 -input file=/home/pi/Display-Software/mplayer.settings  tv://device=/dev/video0:width=300:height=220');
 }
 
 function stop_backup_camera(){
